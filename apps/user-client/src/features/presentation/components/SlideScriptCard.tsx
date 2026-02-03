@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { SlideResult } from '../services/presentationApi';
+import type { SlideResult } from '../services/presentationApi';
 
 interface SlideScriptCardProps {
   slide: SlideResult;

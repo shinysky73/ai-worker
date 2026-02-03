@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PresentationResult } from '../services/presentationApi';
+import type { PresentationResult } from '../services/presentationApi';
 
 export interface UploadedFile {
   id: string;

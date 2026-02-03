@@ -1,5 +1,5 @@
-import { ChangeEvent } from 'react';
-import { PresentationOptions } from '../stores/presentationStore';
+import type { ChangeEvent } from 'react';
+import type { PresentationOptions } from '../stores/presentationStore';
 
 interface OptionsFormProps {
   options: PresentationOptions;

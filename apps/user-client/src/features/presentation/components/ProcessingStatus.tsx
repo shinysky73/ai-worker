@@ -1,4 +1,4 @@
-import { PresentationState } from '../hooks/usePresentation';
+import type { PresentationState } from '../hooks/usePresentation';
 
 interface ProcessingStatusProps {
   state: PresentationState;

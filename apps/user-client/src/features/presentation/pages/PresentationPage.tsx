@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { usePresentation } from '../hooks/usePresentation';
-import { usePresentationStore, PresentationOptions } from '../stores/presentationStore';
+import { usePresentationStore } from '../stores/presentationStore';
+import type { PresentationOptions } from '../stores/presentationStore';
 import { FileUploader } from '../components/FileUploader';
 import { OptionsForm } from '../components/OptionsForm';
 import { ProcessingStatus } from '../components/ProcessingStatus';

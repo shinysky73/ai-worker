@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { PresentationResult } from '../services/presentationApi';
+import type { PresentationResult } from '../services/presentationApi';
 
 interface ResultSummaryProps {
   result: PresentationResult;

@@ -1,8 +1,6 @@
 import { useState, useCallback } from 'react';
-import {
-  presentationApi,
-  PresentationResult,
-} from '../services/presentationApi';
+import { presentationApi } from '../services/presentationApi';
+import type { PresentationResult } from '../services/presentationApi';
 
 export type PresentationState =
   | 'idle'
