@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm -F @milo-seah/api-server test:*)"
+    ]
+  }
+}
