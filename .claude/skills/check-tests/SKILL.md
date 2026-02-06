@@ -1,99 +1,44 @@
 ---
 name: check-tests
-description: Run and verify all tests pass. Use at any TDD phase, before commits, or when user says "check tests", "run tests", "테스트 실행".
+description: Run and verify all tests pass. Use at any TDD phase, before commits, or when user says "check tests", "run tests", "테스트 실행", "테스트 확인".
 disable-model-invocation: true
 ---
 
-# Check Tests - Verify All Tests Pass
+# Check Tests
 
-Run and verify test status according to Kent Beck's TDD practices.
+전체 테스트를 실행하고 결과를 보고한다.
 
 ## Instructions
 
-1. **Detect test framework** from plan.md or file paths
-2. **Run all tests** (not just changed ones)
-3. **Analyze results** clearly
-4. **Report with visual indicators**
-5. **Provide recommendations**
+1. **테스트 실행** — 백엔드/프론트엔드 모두 (또는 사용자가 지정한 범위)
+2. **결과 보고** — 통과/실패 수, 실패 시 원인
+3. **다음 단계 안내** — 통과 시 `/commit-tdd`, 실패 시 수정 방향
 
-## Test Command Detection
+## 테스트 커맨드
 
-| Path Pattern | Framework | Command |
-|--------------|-----------|---------|
-| `apps/api-server/**` | Jest | `pnpm -F @milo-seah/api-server test` |
-| `apps/user-client/**` | Vitest | `pnpm -F @milo-seah/user-client test` |
+| 경로 | 커맨드 |
+|------|--------|
+| `apps/api-server/**` | `pnpm -F @milo-seah/api-server test` |
+| `apps/user-client/**` | `pnpm -F @milo-seah/user-client test` |
+| 특정 파일 | `pnpm -F {패키지} test -- {파일명}` |
 
-### Run Specific Test File:
-```bash
-pnpm -F @milo-seah/api-server test -- auth.service.spec.ts
-pnpm -F @milo-seah/user-client test -- MessageList.test.tsx
+## 보고 형식
+
+통과 시: `N tests passed. Ready for /commit-tdd.`
+
+실패 시:
+```
+N passed, M failed.
+
+Failed:
+1. {테스트명} — {실패 원인 요약}
+2. {테스트명} — {실패 원인 요약}
+
+수정 방향: {간단한 제안}
 ```
 
-## What to Check
+## 원칙
 
-- [ ] All tests execute without error
-- [ ] All tests pass
-- [ ] No compilation errors
-- [ ] No linter warnings
-- [ ] Coverage exists for new code
-
-## Success Report Format
-
-```
-🧪 TEST RESULTS
-================
-✅ Tests Passed: 42/42
-❌ Tests Failed: 0
-⚠️  Warnings: None
-
-Status: 🟢 ALL PASSING
-Next: Ready to proceed with /refactor or /commit-tdd
-```
-
-## Failure Report Format
-
-```
-🧪 TEST RESULTS
-================
-✅ Tests Passed: 40/42
-❌ Tests Failed: 2
-⚠️  Warnings: 1
-
-Status: 🔴 FAILING
-
-Failed Tests:
-1. AuthService > login > shouldRejectInvalidPassword
-   Expected: UnauthorizedException
-   Received: undefined
-
-2. UserService > create > shouldHashPassword
-   Expected: hashed string
-   Received: plain text
-
-Recommendations:
-- Check AuthService.login() error handling
-- Verify bcrypt is called in UserService.create()
-```
-
-## When to Check Tests
-
-| TDD Phase | Purpose |
-|-----------|---------|
-| After RED | Verify test fails correctly |
-| After GREEN | Verify all tests pass |
-| After REFACTOR | Verify no regression |
-| Before COMMIT | Final verification |
-
-## Core Principles
-
-- Run ALL tests, not just the new one
-- Zero failures required to proceed
-- Zero warnings is the standard
-- Fast feedback is essential
-
-## What NOT to Do
-
-- Don't skip "slow" tests
-- Don't ignore warnings
-- Don't proceed with failures
-- Don't run only the new test
+- 변경된 파일뿐 아니라 **전체** 테스트를 실행한다
+- 실패가 있으면 다음 단계로 넘어가지 않는다
+- Pre-existing failure(우리 작업과 무관한 실패)는 구분하여 명시한다

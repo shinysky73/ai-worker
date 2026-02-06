@@ -4,90 +4,60 @@ description: TDD disciplined commit - Commit with proper type indicator after te
 disable-model-invocation: true
 ---
 
-# TDD Commit - Disciplined Commit Practice
+# TDD Commit
 
-Commit following Kent Beck's TDD discipline.
+테스트 통과 후 규율 있는 커밋.
 
-## Prerequisites - ONLY Commit When:
+## Prerequisites
 
-- [ ] ALL tests are passing
-- [ ] ALL compiler/linter warnings resolved
-- [ ] Change represents a single logical unit
-- [ ] Clear whether STRUCTURAL or BEHAVIORAL
+- [ ] 전체 테스트 통과
+- [ ] 변경이 하나의 논리 단위
+- [ ] STRUCTURAL / BEHAVIORAL 구분 명확
 
 ## Instructions
 
-1. **Run all tests** one final time
-2. **Verify no warnings** from compiler/linter
-3. **Determine commit type** (see detection rules)
-4. **Stage specific files** (avoid `git add .`)
-5. **Write commit message** with type prefix
-6. **Commit** the changes
+1. **전체 테스트 실행** — 관련 테스트 파일 모두
+2. **커밋 타입 결정** (아래 기준)
+3. **파일 개별 스테이징** (`git add .` 금지)
+4. **커밋 메시지 작성** (타입 접두사 포함)
+5. **커밋 후 `git status`로 확인**
 
-## Change Type Detection
+## 타입 판별
 
-### BEHAVIORAL (adds/changes functionality):
-- New test file or new `it()`/`test()` blocks
-- New functions/methods with logic
-- Changed algorithm or business logic
-- Bug fixes
+**BEHAVIORAL** (동작 변경):
+- 새 테스트 추가, 로직 변경, 버그 수정
 
-### STRUCTURAL (no behavior change):
-- File/function/variable renamed
-- Code moved between files
-- Method extracted
-- Formatting changes
-- Import reorganization
+**STRUCTURAL** (동작 불변):
+- 이름 변경, 파일 이동, 메서드 추출, 포맷팅
 
-## Commit Message Format
+## 커밋 메시지 포맷
 
-### BEHAVIORAL:
 ```
-[BEHAVIORAL] feat: Add email validation
+[BEHAVIORAL] feat: {한 줄 요약}
 
-- Implemented validateEmail() function
-- Added tests for valid and invalid formats
-- Rejects emails without @ symbol
+- {변경 1}
+- {변경 2}
 
-Test: auth.service.spec.ts
+Test: {테스트 파일명}
 ```
 
-### STRUCTURAL:
 ```
-[STRUCTURAL] refactor: Extract validation helpers
+[STRUCTURAL] refactor: {한 줄 요약}
 
-- Moved validateEmail to validation.utils.ts
-- Renamed 'data' to 'userInput' for clarity
-- Reorganized imports
+- {변경 1}
+- {변경 2}
 
 No behavior change.
 ```
 
-## Mixed Changes Warning
+## Mixed Changes 처리
 
-If both structural AND behavioral changes detected:
-1. **STOP** - don't commit
-2. Suggest separating changes
-3. Commit structural first, then behavioral
+STRUCTURAL + BEHAVIORAL이 섞인 경우:
 
-## Success Criteria
+1. **분리 가능하면** → STRUCTURAL 먼저 커밋, BEHAVIORAL 따로
+2. **같은 라인에 걸쳐 분리 불가하면** → 주요 변경 타입으로 커밋, 메시지에 부수 변경 명시
 
-- [ ] All tests passing
-- [ ] No warnings
-- [ ] Single logical change
-- [ ] Correct type prefix
-- [ ] Clear commit message
+## 하지 말 것
 
-## When to Commit
-
-- After completing RED → GREEN → REFACTOR
-- After tidying code (structural)
-- After each small working increment
-- Before starting a new test
-
-## What NOT to Do
-
-- Don't commit with failing tests
-- Don't commit with warnings
-- Don't mix STRUCTURAL and BEHAVIORAL
-- Don't use `git add .` blindly
+- 실패 중인 테스트가 있으면 커밋하지 않는다
+- `git add .`로 전체 스테이징하지 않는다

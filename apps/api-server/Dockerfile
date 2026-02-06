@@ -25,6 +25,6 @@ RUN pnpm --filter api-server build
 # 업로드 디렉토리 생성
 RUN mkdir -p /app/uploads/presentations
 
-EXPOSE 3001
+EXPOSE 3002
 
 CMD ["node", "apps/api-server/dist/main.js"]

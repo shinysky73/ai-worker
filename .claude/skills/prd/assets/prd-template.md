@@ -1,116 +1,56 @@
 # PRD: {Feature Name}
 
-**Author**: {Author}
 **Created**: {Date}
-**Status**: Draft | Review | Approved
+**Status**: Draft | Approved
+**Prerequisites**: {선행 작업이 있으면 기재}
 
 ---
 
-## 1. Problem Statement
+## 1. Problem
 
-### Background
-{Context about the current situation}
+### 배경
+{현재 상황과 컨텍스트}
 
-### Problem
-{Clear description of the problem being solved}
+### 문제
+{구체적으로 무엇이 잘못되어 있는가 — 번호 매겨서 나열}
 
-### Impact
-{What happens if we don't solve this?}
-
----
-
-## 2. Goals & Success Metrics
-
-### Primary Goal
-{The main objective this feature achieves}
-
-### Success Metrics
-| Metric | Current | Target |
-|--------|---------|--------|
-| {Metric 1} | {value} | {value} |
-| {Metric 2} | {value} | {value} |
+### 영향
+{안 고치면 어떻게 되는가}
 
 ---
 
-## 3. User Stories
+## 2. Functional Requirements
 
-### Must Have (P0)
-- [ ] As a {user}, I want {action} so that {benefit}
-- [ ] As a {user}, I want {action} so that {benefit}
+### FR-1: {요구사항 이름}
 
-### Should Have (P1)
-- [ ] As a {user}, I want {action} so that {benefit}
+**Description**: {시스템이 무엇을 해야 하는가}
 
-### Could Have (P2)
-- [ ] As a {user}, I want {action} so that {benefit}
-
----
-
-## 4. Functional Requirements
-
-### FR-1: {Requirement Name}
-**Description**: {What the system should do}
+**현재 코드**: `{파일:라인}` — {현재 동작 요약}
 
 **Acceptance Criteria**:
-- [ ] {Testable criterion 1}
-- [ ] {Testable criterion 2}
+- [ ] {테스트 가능한 기준 1}
+- [ ] {테스트 가능한 기준 2}
 
 **Edge Cases**:
-- {Edge case 1}: {Expected behavior}
-- {Edge case 2}: {Expected behavior}
+- {상황}: {기대 동작}
 
-### FR-2: {Requirement Name}
+### FR-2: {요구사항 이름}
 ...
 
 ---
 
-## 5. Non-Functional Requirements
+## 3. Affected Code
 
-### Performance
-- {Requirement with specific metric}
+**수정 대상:**
+- `{파일경로}` — {변경 이유}
+- `{파일경로}` — {변경 이유}
 
-### Security
-- {Security requirement}
-
-### Reliability
-- {Uptime/recovery requirement}
+**의존성:**
+- {외부 라이브러리나 API 확인 필요 사항}
 
 ---
 
-## 6. Technical Considerations
+## 4. Out of Scope
 
-### Existing Patterns
-- {Pattern to follow from existing codebase}
-
-### Dependencies
-- {External service or library}
-
-### Constraints
-- {Technical limitation to consider}
-
----
-
-## 7. Out of Scope
-
-The following are explicitly NOT included in this feature:
-- {Item 1}
-- {Item 2}
-
----
-
-## 8. Open Questions
-
-| Question | Owner | Due Date | Resolution |
-|----------|-------|----------|------------|
-| {Question} | {Name} | {Date} | {Answer when resolved} |
-
----
-
-## Appendix
-
-### Mockups
-{Links or embedded images}
-
-### Related Documents
-- {Link to related PRD}
-- {Link to technical design}
+- {이번에 하지 않는 것 1}
+- {이번에 하지 않는 것 2}

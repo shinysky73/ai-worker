@@ -1,135 +1,94 @@
 ---
 name: go-phase
-description: Execute all tests in a phase sequentially. Use when user says "phase 실행", "go-phase", "전체 테스트 실행", "phase 전체", or wants to run multiple tests at once.
+description: Execute TDD cycle for a phase. Discovers tests from PRD AC + code, then runs Red → Green → Refactor. Use when user says "go", "go-phase", "phase 실행", "다음 테스트", "TDD 실행".
 disable-model-invocation: true
 ---
 
-# TDD Go Phase - Execute All Tests in a Phase
+# Go Phase - TDD 실행
 
-Execute the complete TDD cycle (Red → Green → Refactor) for ALL tests in a specified phase.
+Plan의 Phase를 읽고, PRD AC와 코드를 보면서 테스트를 **발견**하고 실행한다.
 
-## Plan File Location
+## 핵심 원칙
 
-Find plan at: `docs/{feature-name}/plan.md`
+**테스트는 미리 설계하지 않는다.** PRD AC + 현재 코드를 보면서 하나씩 발견한다 (Kent Beck TDD).
 
-| Usage | Location |
-|-------|----------|
-| `/go-phase user-auth 1` | `docs/user-auth/plan.md` Phase 1 |
-| `/go-phase chat-history` | `docs/chat-history/plan.md` first incomplete phase |
-| `/go-phase` (no arg) | Ask user which feature |
+## Plan / PRD 위치
 
-## Instructions
+| 사용법 | Plan | PRD |
+|--------|------|-----|
+| `/go-phase feature 1` | `docs/feature/plan.md` Phase 1 | `docs/feature/prd.md` |
+| `/go-phase feature` | 첫 미완료 Phase | 동일 |
+| `/go-phase` | 사용자에게 질문 | 동일 |
 
-1. **Read plan.md** from `docs/{feature-name}/plan.md`
-2. **Identify target phase**
-3. **For each pending test** in order:
-   - Execute full TDD cycle (Red → Green → Refactor)
-   - Mark `[x]` when complete
-   - Continue to next test automatically
-4. **Report summary** when phase complete
+## 실행 흐름
 
----
+### 1. Phase 파악
 
-## Phase Selection
+- `plan.md`에서 대상 Phase 읽기
+- 행동 목표, PRD AC, Edge Cases, 위험 요소 확인
 
-| User Input | Action |
-|------------|--------|
-| `/go-phase user-auth 1` | Execute Phase 1 of user-auth |
-| `/go-phase user-auth` | Execute first incomplete phase of user-auth |
-| `/go-phase` | Ask which feature to work on |
+### 2. 테스트 발견
 
----
+- PRD의 **Acceptance Criteria**와 **Edge Cases** 확인
+- **실제 코드**를 읽고 현재 동작 파악
+- AC 하나당 테스트 하나(또는 그 이상)를 **그 자리에서** 설계
 
-## Execution Loop
+### 3. TDD 사이클 (테스트마다 반복)
 
-For each test with `[ ]`, `[🔴]`, `[🟢]`, or `[🔄]` marker:
+**RED**: 실패하는 테스트 작성 → 실행 → 올바른 이유로 실패 확인
+**GREEN**: 테스트를 통과시키는 최소 코드 작성 → 전체 테스트 실행
+**REFACTOR**: 중복/복잡도 개선 필요 시 구조 변경 → 테스트 재실행
 
-### 1. RED Phase
-- Update marker to `[🔴]`
-- Write failing test
-- Verify test fails for correct reason
+다음 테스트로 자동 진행. 사용자 확인 불필요.
 
-### 2. GREEN Phase
-- Update marker to `[🟢]`
-- Write minimum code to pass
-- Run ALL tests - must pass
+### 4. 기존 테스트 영향 처리
 
-### 3. REFACTOR Phase
-- Update marker to `[🔄]`
-- Apply refactoring if needed (duplication, naming, complexity)
-- Run tests after each change
-- Mark `[x]` when complete
+Plan의 ⚠ 위험 요소에 기존 테스트 깨짐이 명시되어 있으면:
+- 깨진 테스트를 새 동작에 맞게 업데이트
+- 업데이트 후 전체 테스트 통과 확인
 
-### 4. Continue
-- Move to next test automatically
-- No user confirmation between tests
+### 5. 진행 기록
 
----
-
-## Stop Conditions
-
-Stop execution and report to user when:
-
-| Condition | Action |
-|-----------|--------|
-| All tests in phase complete | Report success summary |
-| Test fails unexpectedly | Stop, report issue, wait for guidance |
-| Implementation unclear | Stop, ask for clarification |
-| Breaking other tests | Stop, report regression |
-
----
-
-## Progress Reporting
-
-During execution, show brief progress:
-```
-[1/5] ✓ shouldCreateUser
-[2/5] ✓ shouldValidateEmail
-[3/5] 🔴 shouldHashPassword (RED)
-```
-
----
-
-## Final Summary
-
-When phase complete, report:
+테스트를 **발견하면** `plan.md`의 해당 Phase에 추가하고, 완료하면 `[x]`로 체크한다.
 
 ```markdown
-## Phase X Complete
-
-| Status | Count |
-|--------|-------|
-| ✓ Completed | 5 |
-| ⏭ Skipped | 0 |
-| ✗ Failed | 0 |
-
-### Tests Completed:
-1. shouldCreateUser
-2. shouldValidateEmail
-3. shouldHashPassword
-4. shouldGenerateToken
-5. shouldReturnUserDto
-
-All tests passing. Ready for /commit-tdd or next phase.
+### Tests:
+- [x] shouldReturnArrayFromConvertEvent: 배열 반환 확인
+- [x] shouldProcessMultiplePartsInOneEvent: 다중 파트 처리
+- [ ] shouldReturnEmptyArrayForNullContent: null content 처리
 ```
 
----
+이렇게 하면:
+- Plan 작성 시에는 테스트 이름이 없음 (미리 설계 안 함)
+- `/go-phase` 실행 중에 발견하면서 기록
+- 중단 후 재개 시 `[ ]`를 보고 이어서 진행
+- Phase 내 모든 테스트가 `[x]`이면 Phase 완료
 
-## Test Command Detection
+### 6. 재개 (Resume)
 
-| Path Pattern | Command |
-|--------------|---------|
-| `apps/api-server/**` | `pnpm -F @milo-seah/api-server test` |
-| `apps/user-client/**` | `pnpm -F @milo-seah/user-client test` |
+중단 후 다시 `/go-phase`를 실행하면:
+1. `plan.md`에서 `[ ]`가 남은 첫 Phase를 찾는다
+2. 해당 Phase의 `[ ]` 테스트부터 이어서 진행
+3. `[ ]`가 없으면 PRD AC를 다시 확인하여 누락된 테스트가 있는지 검토
 
-Specific file: `pnpm -F @milo-seah/api-server test -- {filename}`
+## 중단 조건
 
----
+| 상황 | 행동 |
+|------|------|
+| 전체 완료 | 결과 보고 |
+| 예상 외 테스트 실패 | 중단, 원인 보고 |
+| 구현 방향 불명확 | 중단, 사용자에게 질문 |
+| 기존 테스트 회귀 | 중단, 회귀 보고 |
 
-## What NOT to Do
+## 테스트 커맨드
 
-- Don't skip RED phase for any test
-- Don't proceed if any test is failing
-- Don't mix structural/behavioral changes in same commit
-- Don't continue if implementation is unclear
-- Don't ignore regressions in existing tests
+| 경로 | 커맨드 |
+|------|--------|
+| `apps/api-server/**` | `pnpm -F @milo-seah/api-server test -- {파일}` |
+| `apps/user-client/**` | `pnpm -F @milo-seah/user-client test -- {파일}` |
+
+## 하지 말 것
+
+- RED 단계를 건너뛰지 않는다
+- 실패 중인 테스트가 있으면 다음으로 넘어가지 않는다
+- 테스트를 미리 전부 작성하지 않는다 — 하나씩 발견
