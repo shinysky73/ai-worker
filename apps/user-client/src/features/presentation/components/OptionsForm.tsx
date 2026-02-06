@@ -19,8 +19,14 @@ export function OptionsForm({
 
   const handleMinutesChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const targetMinutes = value ? parseInt(value, 10) : undefined;
-    onChange({ ...options, targetMinutes });
+    if (!value) {
+      onChange({ ...options, targetMinutes: undefined });
+      return;
+    }
+    const parsed = parseInt(value, 10);
+    if (!isNaN(parsed) && parsed >= 1 && parsed <= 120) {
+      onChange({ ...options, targetMinutes: parsed });
+    }
   };
 
   return (

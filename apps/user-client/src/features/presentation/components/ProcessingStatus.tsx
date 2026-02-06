@@ -3,6 +3,7 @@ import type { PresentationState } from '../hooks/usePresentation';
 interface ProcessingStatusProps {
   state: PresentationState;
   progress: number;
+  message: string | null;
   error: string | null;
   filename?: string;
 }
@@ -10,10 +11,12 @@ interface ProcessingStatusProps {
 export function ProcessingStatus({
   state,
   progress,
+  message,
   error,
   filename,
 }: ProcessingStatusProps) {
   const getStatusMessage = () => {
+    if (message) return message;
     switch (state) {
       case 'uploading':
         return '파일 업로드 중...';

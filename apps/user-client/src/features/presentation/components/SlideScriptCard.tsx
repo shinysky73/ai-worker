@@ -1,29 +1,22 @@
 import { useState, useCallback } from 'react';
 import type { SlideResult } from '../services/presentationApi';
+import { formatTime } from '../utils/formatTime';
 
 interface SlideScriptCardProps {
   slide: SlideResult;
 }
 
 export function SlideScriptCard({ slide }: SlideScriptCardProps) {
-  const [copied, setCopied] = useState(false);
-
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    if (mins === 0) {
-      return `${secs}초`;
-    }
-    return secs === 0 ? `${mins}분` : `${mins}분 ${secs}초`;
-  };
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(slide.script);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
+      setCopyState('copied');
+      setTimeout(() => setCopyState('idle'), 2000);
+    } catch {
+      setCopyState('failed');
+      setTimeout(() => setCopyState('idle'), 2000);
     }
   }, [slide.script]);
 
@@ -45,11 +38,16 @@ export function SlideScriptCard({ slide }: SlideScriptCardProps) {
           <button
             onClick={handleCopy}
             className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+            aria-label="스크립트 복사"
             title="스크립트 복사"
           >
-            {copied ? (
+            {copyState === 'copied' ? (
               <svg className="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            ) : copyState === 'failed' ? (
+              <svg className="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             ) : (
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -59,10 +57,20 @@ export function SlideScriptCard({ slide }: SlideScriptCardProps) {
           </button>
         </div>
       </div>
-      <div className="p-4">
+      <div className="p-4 space-y-3">
         <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
           {slide.script}
         </p>
+        {slide.transition && (
+          <div className="flex items-start gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+            <svg className="h-4 w-4 mt-0.5 text-indigo-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+            <p className="text-sm text-indigo-500 dark:text-indigo-400 italic">
+              {slide.transition}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

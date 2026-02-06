@@ -10,7 +10,7 @@ import { ResultSummary } from '../components/ResultSummary';
 
 export function PresentationPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const { state, progress, result, error, upload, reset } = usePresentation();
+  const { state, progress, message, result, error, upload, reset } = usePresentation();
   const { options, setOptions } = usePresentationStore();
 
   const handleFileSelect = useCallback((file: File) => {
@@ -47,8 +47,8 @@ export function PresentationPage() {
             발표 스크립트 생성기
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            PPT 파일을 업로드하면 AI가 각 슬라이드에 맞는 발표 스크립트를
-            생성해드립니다.
+            PPT 또는 PDF 파일을 업로드하면 AI가 각 슬라이드에 맞는 발표
+            스크립트를 생성해드립니다.
           </p>
         </header>
 
@@ -81,6 +81,7 @@ export function PresentationPage() {
                     </span>
                     <button
                       onClick={() => setSelectedFile(null)}
+                      aria-label="파일 제거"
                       className="ml-auto text-blue-500 hover:text-blue-700"
                     >
                       <svg
@@ -145,6 +146,7 @@ export function PresentationPage() {
               <ProcessingStatus
                 state={state}
                 progress={progress}
+                message={message}
                 error={error}
                 filename={selectedFile?.name}
               />

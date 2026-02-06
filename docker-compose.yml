@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  api-server:
+    build:
+      context: .
+      dockerfile: apps/api-server/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - CORS_ORIGIN=http://localhost:5174
+    volumes:
+      - uploads:/app/uploads
+
+  user-client:
+    build:
+      context: .
+      dockerfile: apps/user-client/Dockerfile
+    ports:
+      - "5174:80"
+    depends_on:
+      - api-server
+
+volumes:
+  uploads:

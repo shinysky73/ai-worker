@@ -10,19 +10,20 @@ interface FileUploaderProps {
 const ALLOWED_TYPES = [
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   'application/vnd.ms-powerpoint',
+  'application/pdf',
 ];
 
 export function FileUploader({
   onFileSelect,
   disabled = false,
-  accept = '.ppt,.pptx',
+  accept = '.ppt,.pptx,.pdf',
 }: FileUploaderProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const validateFile = useCallback((file: File): boolean => {
     if (!ALLOWED_TYPES.includes(file.type)) {
-      setError('PPT 또는 PPTX 파일만 업로드할 수 있습니다.');
+      setError('PPT, PPTX 또는 PDF 파일만 업로드할 수 있습니다.');
       return false;
     }
     if (file.size > 50 * 1024 * 1024) {
@@ -123,7 +124,7 @@ export function FileUploader({
             하거나 드래그하여 업로드하세요
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            PPT, PPTX (최대 50MB)
+            PPT, PPTX, PDF (최대 50MB)
           </p>
         </div>
       </div>

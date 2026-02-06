@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import type { PresentationResult } from '../services/presentationApi';
+import { formatTime } from '../utils/formatTime';
 
 interface ResultSummaryProps {
   result: PresentationResult;
@@ -7,34 +8,38 @@ interface ResultSummaryProps {
 }
 
 export function ResultSummary({ result, onReset }: ResultSummaryProps) {
-  const [copiedAll, setCopiedAll] = useState(false);
-
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    if (mins === 0) {
-      return `${secs}초`;
-    }
-    return secs === 0 ? `${mins}분` : `${mins}분 ${secs}초`;
-  };
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   const handleCopyAll = useCallback(async () => {
     const allScripts = result.slides
-      .map((slide) => `[슬라이드 ${slide.slideNumber}]\n${slide.script}`)
+      .map((slide) => {
+        let text = `[슬라이드 ${slide.slideNumber}]\n${slide.script}`;
+        if (slide.transition) {
+          text += `\n→ ${slide.transition}`;
+        }
+        return text;
+      })
       .join('\n\n');
 
     try {
       await navigator.clipboard.writeText(allScripts);
-      setCopiedAll(true);
-      setTimeout(() => setCopiedAll(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
+      setCopyState('copied');
+      setTimeout(() => setCopyState('idle'), 2000);
+    } catch {
+      setCopyState('failed');
+      setTimeout(() => setCopyState('idle'), 2000);
     }
   }, [result.slides]);
 
   const handleDownload = useCallback(() => {
     const content = result.slides
-      .map((slide) => `[슬라이드 ${slide.slideNumber}] (${formatTime(slide.estimatedSeconds)})\n${slide.script}`)
+      .map((slide) => {
+        let text = `[슬라이드 ${slide.slideNumber}] (${formatTime(slide.estimatedSeconds)})\n${slide.script}`;
+        if (slide.transition) {
+          text += `\n\n→ 전환: ${slide.transition}`;
+        }
+        return text;
+      })
       .join('\n\n---\n\n');
 
     const header = `# 발표 스크립트\n\n총 발표 시간: ${formatTime(result.totalEstimatedSeconds)}\n총 슬라이드: ${result.slides.length}장\n\n---\n\n`;
@@ -76,14 +81,22 @@ export function ResultSummary({ result, onReset }: ResultSummaryProps) {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={handleCopyAll}
+            aria-label="전체 스크립트 복사"
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            {copiedAll ? (
+            {copyState === 'copied' ? (
               <>
                 <svg className="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 복사됨
+              </>
+            ) : copyState === 'failed' ? (
+              <>
+                <svg className="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                복사 실패
               </>
             ) : (
               <>
@@ -97,6 +110,7 @@ export function ResultSummary({ result, onReset }: ResultSummaryProps) {
 
           <button
             onClick={handleDownload}
+            aria-label="스크립트 다운로드"
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,6 +121,7 @@ export function ResultSummary({ result, onReset }: ResultSummaryProps) {
 
           <button
             onClick={onReset}
+            aria-label="새로 시작"
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
