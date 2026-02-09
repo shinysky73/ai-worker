@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { PresentationController } from './presentation.controller';
 import { PresentationService, UploadOptions } from './presentation.service';
 import { ConverterService } from './converter.service';
@@ -17,6 +18,10 @@ describe('PresentationController', () => {
       uploadFile: jest.fn(),
       getStatus: jest.fn(),
       getResult: jest.fn(),
+      getHistoryList: jest.fn(),
+      getHistoryDetail: jest.fn(),
+      deleteHistory: jest.fn(),
+      saveHistory: jest.fn(),
     };
 
     const mockConverterService = {
@@ -48,6 +53,8 @@ describe('PresentationController', () => {
   });
 
   describe('POST /api/presentations/upload', () => {
+    const mockReq = { user: { id: 'user-1' } } as any;
+
     it('shouldHandleFileUpload: POST /api/presentations/upload 엔드포인트', async () => {
       const mockFile = createMockPptxFile();
       presentationService.uploadFile.mockResolvedValue({
@@ -55,11 +62,12 @@ describe('PresentationController', () => {
         filename: mockFile.originalname,
       });
 
-      const result = await controller.uploadFile(mockFile as any);
+      const result = await controller.uploadFile(mockReq, mockFile as any);
 
       expect(presentationService.uploadFile).toHaveBeenCalledWith(
         mockFile,
         undefined,
+        'user-1',
       );
       expect(result).toEqual({
         id: 'test-uuid',
@@ -117,7 +125,63 @@ describe('PresentationController', () => {
     });
   });
 
+  describe('JWT Guard', () => {
+    it('shouldHaveJwtGuardOnController: 컨트롤러에 JWT 가드가 적용되어 있어야 한다', () => {
+      const guards = Reflect.getMetadata('__guards__', PresentationController);
+      expect(guards).toBeDefined();
+      expect(guards.length).toBeGreaterThan(0);
+
+      // AuthGuard('jwt')가 적용되었는지 확인
+      const guardInstance = new guards[0]();
+      expect(guardInstance).toBeDefined();
+    });
+  });
+
+  describe('GET /api/presentations/history', () => {
+    it('shouldReturnHistoryList: 로그인 사용자의 히스토리 목록 반환', async () => {
+      const mockReq = { user: { id: 'user-1' } } as any;
+      const mockResult = {
+        items: [{ id: 'h-1', filename: 'a.pptx' }],
+        total: 1,
+        page: 1,
+        limit: 20,
+      };
+      presentationService.getHistoryList.mockResolvedValue(mockResult as any);
+
+      const result = await controller.getHistoryList(mockReq);
+
+      expect(presentationService.getHistoryList).toHaveBeenCalledWith('user-1', 1, 20);
+      expect(result).toEqual(mockResult);
+    });
+  });
+
+  describe('GET /api/presentations/history/:id', () => {
+    it('shouldReturnHistoryDetail: 히스토리 상세 조회', async () => {
+      const mockReq = { user: { id: 'user-1' } } as any;
+      const mockHistory = { id: 'h-1', userId: 'user-1', filename: 'a.pptx' };
+      presentationService.getHistoryDetail.mockResolvedValue(mockHistory as any);
+
+      const result = await controller.getHistoryDetail(mockReq, 'h-1');
+
+      expect(presentationService.getHistoryDetail).toHaveBeenCalledWith('user-1', 'h-1');
+      expect(result).toEqual(mockHistory);
+    });
+  });
+
+  describe('DELETE /api/presentations/history/:id', () => {
+    it('shouldDeleteHistory: 히스토리 삭제', async () => {
+      const mockReq = { user: { id: 'user-1' } } as any;
+      presentationService.deleteHistory.mockResolvedValue(undefined);
+
+      await controller.deleteHistory(mockReq, 'h-1');
+
+      expect(presentationService.deleteHistory).toHaveBeenCalledWith('user-1', 'h-1');
+    });
+  });
+
   describe('POST /api/presentations/upload with options', () => {
+    const mockReq = { user: { id: 'user-1' } } as any;
+
     it('shouldValidateOptions: options 파라미터 검증 (tone, targetMinutes)', async () => {
       const mockFile = createMockPptxFile();
 
@@ -128,11 +192,12 @@ describe('PresentationController', () => {
       });
 
       const validOptions: UploadOptions = { tone: 'formal', targetMinutes: 10 };
-      const result = await controller.uploadFile(mockFile as any, validOptions);
+      const result = await controller.uploadFile(mockReq, mockFile as any, validOptions);
 
       expect(presentationService.uploadFile).toHaveBeenCalledWith(
         mockFile,
         validOptions,
+        'user-1',
       );
       expect(result).toEqual({
         id: 'test-uuid',
@@ -141,17 +206,17 @@ describe('PresentationController', () => {
 
       // Invalid tone should throw BadRequestException
       await expect(
-        controller.uploadFile(mockFile as any, { tone: 'invalid' as any }),
+        controller.uploadFile(mockReq, mockFile as any, { tone: 'invalid' as any }),
       ).rejects.toThrow(BadRequestException);
 
       // Invalid targetMinutes (negative) should throw BadRequestException
       await expect(
-        controller.uploadFile(mockFile as any, { targetMinutes: -5 }),
+        controller.uploadFile(mockReq, mockFile as any, { targetMinutes: -5 }),
       ).rejects.toThrow(BadRequestException);
 
       // Invalid targetMinutes (too large) should throw BadRequestException
       await expect(
-        controller.uploadFile(mockFile as any, { targetMinutes: 200 }),
+        controller.uploadFile(mockReq, mockFile as any, { targetMinutes: 200 }),
       ).rejects.toThrow(BadRequestException);
     });
   });

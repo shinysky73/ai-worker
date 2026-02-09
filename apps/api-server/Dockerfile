@@ -18,13 +18,19 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/api-server/package.json ./apps/api-server/
 RUN pnpm install --frozen-lockfile
 
-# 소스 복사 및 빌드
+# 소스 복사
 COPY apps/api-server ./apps/api-server
-RUN pnpm --filter api-server build
+
+# Prisma client 생성 및 빌드
+RUN cd apps/api-server && npx prisma generate
+RUN pnpm -F @ai-worker/api-server build
 
 # 업로드 디렉토리 생성
 RUN mkdir -p /app/uploads/presentations
 
 EXPOSE 3002
 
-CMD ["node", "apps/api-server/dist/main.js"]
+COPY apps/api-server/docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+
+CMD ["/app/docker-entrypoint.sh"]

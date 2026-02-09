@@ -42,11 +42,11 @@ export const createMockInvalidFile = (
   overrides: Partial<MockFile> = {},
 ): MockFile => ({
   fieldname: 'file',
-  originalname: 'document.pdf',
+  originalname: 'document.txt',
   encoding: '7bit',
-  mimetype: 'application/pdf',
+  mimetype: 'text/plain',
   size: 1024 * 1024,
-  buffer: Buffer.from('PDF mock content'),
+  buffer: Buffer.from('plain text content'),
   ...overrides,
 });
 

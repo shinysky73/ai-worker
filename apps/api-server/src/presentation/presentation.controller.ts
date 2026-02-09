@@ -2,14 +2,21 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
   Param,
+  Query,
   Body,
+  Req,
   UploadedFile,
   UseInterceptors,
+  UseGuards,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { Request } from 'express';
+import type { AuthUser } from '../auth/jwt.strategy';
 import {
   PresentationService,
   UploadResult,
@@ -20,19 +27,21 @@ import {
 } from './presentation.service';
 
 @Controller('api/presentations')
+@UseGuards(AuthGuard('jwt'))
 export class PresentationController {
   constructor(private readonly presentationService: PresentationService) {}
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
+    @Req() req: Request & { user: AuthUser },
     @UploadedFile() file: UploadedFileType,
     @Body() options?: UploadOptions,
   ): Promise<UploadResult> {
     if (options) {
       this.validateOptions(options);
     }
-    return this.presentationService.uploadFile(file, options);
+    return this.presentationService.uploadFile(file, options, req.user.id);
   }
 
   private validateOptions(options: UploadOptions): void {
@@ -50,6 +59,38 @@ export class PresentationController {
         );
       }
     }
+  }
+
+  @Get('history')
+  async getHistoryList(
+    @Req() req: Request & { user: AuthUser },
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const userId = req.user.id;
+    return this.presentationService.getHistoryList(
+      userId,
+      page ? parseInt(page, 10) : 1,
+      limit ? parseInt(limit, 10) : 20,
+    );
+  }
+
+  @Get('history/:id')
+  async getHistoryDetail(
+    @Req() req: Request & { user: AuthUser },
+    @Param('id') id: string,
+  ) {
+    const userId = req.user.id;
+    return this.presentationService.getHistoryDetail(userId, id);
+  }
+
+  @Delete('history/:id')
+  async deleteHistory(
+    @Req() req: Request & { user: AuthUser },
+    @Param('id') id: string,
+  ) {
+    const userId = req.user.id;
+    return this.presentationService.deleteHistory(userId, id);
   }
 
   @Get(':id/status')

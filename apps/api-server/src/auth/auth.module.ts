@@ -20,15 +20,19 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
   controllers: [AuthController],
   providers: [
     AuthService,
-    {
-      provide: GoogleStrategy,
-      useFactory: () =>
-        new GoogleStrategy(
-          process.env.GOOGLE_CLIENT_ID || '',
-          process.env.GOOGLE_CLIENT_SECRET || '',
-          process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3002/api/auth/google/callback',
-        ),
-    },
+    ...(process.env.GOOGLE_CLIENT_ID
+      ? [
+          {
+            provide: GoogleStrategy,
+            useFactory: () =>
+              new GoogleStrategy(
+                process.env.GOOGLE_CLIENT_ID!,
+                process.env.GOOGLE_CLIENT_SECRET || '',
+                process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3002/api/auth/google/callback',
+              ),
+          },
+        ]
+      : []),
     {
       provide: JwtStrategy,
       useFactory: () => new JwtStrategy(JWT_SECRET),

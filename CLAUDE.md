@@ -85,10 +85,10 @@ External dependencies: LibreOffice (`soffice`), Poppler (`pdftoppm`) — Docker 
 React 19 + Vite 7 with feature-based organization:
 
 - **features/presentation/**: 파일 업로드, 옵션 설정, 처리 상태, 결과 표시
-- **features/auth/**: 로그인 (구현 중)
-- **features/history/**: 히스토리 (구현 중)
-- **components/**: 공통 UI 컴포넌트 (Layout, Navbar — 구현 중)
-- **stores/**: Zustand 상태 관리
+- **features/auth/**: Google OAuth 로그인, JWT 상태 관리, API 인터셉터
+- **features/history/**: 히스토리 목록/상세/삭제 API 클라이언트, useHistory hook, HistoryPage
+- **components/**: Layout (인증 가드 + Outlet), Navbar (네비게이션 + 프로필 드롭다운)
+- **stores/**: Zustand 상태 관리 (feature-scoped)
 
 Key libraries: Axios, Zustand, Tailwind CSS, React Router v7.
 
@@ -158,5 +158,5 @@ docs/
 - **Feature**: Google 로그인, History 저장, 네비게이션 메뉴
 - **PRD**: `docs/auth-history-navigation/prd.md`
 - **Plan**: `docs/auth-history-navigation/plan.md`
-- **Status**: Phase 2 완료 (Auth 모듈). Phase 3부터 시작.
-- **Pre-existing test failures**: converter.service.spec.ts, script-generator.service.spec.ts, presentation.service.spec.ts — 이전 리팩토링에서 인터페이스 변경 후 테스트 미업데이트
+- **Status**: 전체 Phase 완료 (Phase 1~9).
+- **Pre-existing test failures**: converter.service.spec.ts, script-generator.service.spec.ts — 이전 리팩토링에서 인터페이스 변경 후 테스트 미업데이트. presentationApi.test.ts — API 호출 검증 assertion 미업데이트.

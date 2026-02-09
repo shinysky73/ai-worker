@@ -1,10 +1,11 @@
-import { Injectable, BadRequestException, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, OnModuleDestroy } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { ConverterService } from './converter.service';
 import { ScriptGeneratorService } from './script-generator.service';
 import type { SlideAnalysis, SlideScript } from './script-generator.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 export interface UploadedFile {
   fieldname: string;
@@ -75,16 +76,23 @@ interface StoreEntry<T> {
   createdAt: number;
 }
 
+interface UploadMeta {
+  userId: string;
+  filename: string;
+}
+
 @Injectable()
 export class PresentationService implements OnModuleDestroy {
   private statusStore = new Map<string, StoreEntry<StatusResult>>();
   private resultStore = new Map<string, StoreEntry<PresentationResult>>();
   private optionsStore = new Map<string, StoreEntry<UploadOptions>>();
+  private metaStore = new Map<string, StoreEntry<UploadMeta>>();
   private cleanupTimer: ReturnType<typeof setInterval>;
 
   constructor(
     private readonly converterService: ConverterService,
     private readonly scriptGeneratorService: ScriptGeneratorService,
+    private readonly prismaService: PrismaService,
   ) {
     this.cleanupTimer = setInterval(() => this.cleanupExpiredEntries(), CLEANUP_INTERVAL_MS);
   }
@@ -100,6 +108,7 @@ export class PresentationService implements OnModuleDestroy {
         this.statusStore.delete(key);
         this.resultStore.delete(key);
         this.optionsStore.delete(key);
+        this.metaStore.delete(key);
       }
     }
   }
@@ -119,17 +128,24 @@ export class PresentationService implements OnModuleDestroy {
   async uploadFile(
     file: UploadedFile,
     options?: UploadOptions,
+    userId?: string,
   ): Promise<UploadResult> {
     this.validateFileType(file);
     this.validateFileSize(file);
     this.validateFileIntegrity(file);
 
     const id = randomUUID();
+    const decodedFilename = Buffer.from(file.originalname, 'latin1').toString('utf8');
+
+    if (userId) {
+      this.metaStore.set(id, { data: { userId, filename: decodedFilename }, createdAt: Date.now() });
+    }
+
     await this.storeFile(id, file, options);
 
     return {
       id,
-      filename: file.originalname,
+      filename: decodedFilename,
     };
   }
 
@@ -276,6 +292,17 @@ export class PresentationService implements OnModuleDestroy {
       this.setStatus(id, { id, status: 'completed', progress: 100, message: '스크립트 생성 완료!' });
       console.log(`[${id}] Processing completed!`);
 
+      // Save to history if userId is available
+      const meta = this.metaStore.get(id);
+      if (meta?.data.userId) {
+        try {
+          await this.saveHistory(meta.data.userId, meta.data.filename, options, slides, refined.totalEstimatedSeconds);
+          console.log(`[${id}] History saved for user ${meta.data.userId}`);
+        } catch (historyError) {
+          console.error(`[${id}] Failed to save history:`, historyError);
+        }
+      }
+
     } catch (error) {
       console.error(`[${id}] Processing error:`, error);
       this.setStatus(id, {
@@ -384,5 +411,64 @@ export class PresentationService implements OnModuleDestroy {
   async getResult(id: string): Promise<PresentationResult | null> {
     const entry = this.resultStore.get(id);
     return entry?.data || null;
+  }
+
+  // ── History CRUD ──
+
+  async saveHistory(
+    userId: string,
+    filename: string,
+    options: UploadOptions,
+    slides: SlideResult[],
+    totalEstimatedSeconds: number,
+  ) {
+    return this.prismaService.presentationHistory.create({
+      data: {
+        userId,
+        filename,
+        tone: options.tone || null,
+        targetMinutes: options.targetMinutes ? Number(options.targetMinutes) : null,
+        slides: slides as unknown as any,
+        totalEstimatedSeconds,
+      },
+    });
+  }
+
+  async getHistoryList(userId: string, page = 1, limit = 20) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.prismaService.presentationHistory.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prismaService.presentationHistory.count({
+        where: { userId },
+      }),
+    ]);
+    return { items, total, page, limit };
+  }
+
+  async getHistoryDetail(userId: string, historyId: string) {
+    const history = await this.prismaService.presentationHistory.findFirst({
+      where: { id: historyId, userId },
+    });
+    if (!history) {
+      throw new NotFoundException('History not found');
+    }
+    return history;
+  }
+
+  async deleteHistory(userId: string, historyId: string) {
+    const history = await this.prismaService.presentationHistory.findFirst({
+      where: { id: historyId, userId },
+    });
+    if (!history) {
+      throw new NotFoundException('History not found');
+    }
+    await this.prismaService.presentationHistory.delete({
+      where: { id: historyId },
+    });
   }
 }

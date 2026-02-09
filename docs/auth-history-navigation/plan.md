@@ -2,7 +2,7 @@
 
 **PRD**: `docs/auth-history-navigation/prd.md`
 **Created**: 2026-02-06
-**Status**: In Progress
+**Status**: Complete
 
 ---
 
@@ -76,7 +76,11 @@
 - 기존 `presentation.controller.spec.ts` 테스트가 깨질 수 있음 (인증 없이 호출하고 있을 경우)
 
 ### Tests:
-_(비워둠 — `/go-phase` 실행 시 발견하면서 추가)_
+- [x] shouldHaveJwtGuardOnController: 컨트롤러에 JWT 가드가 적용되어 있어야 한다
+
+### Done:
+- `@UseGuards(AuthGuard('jwt'))` 컨트롤러 레벨에 적용
+- 기존 테스트 모두 통과 (단위 테스트에서는 가드 우회됨)
 
 ---
 
@@ -92,7 +96,21 @@ _(비워둠 — `/go-phase` 실행 시 발견하면서 추가)_
 - 기존 `presentation.service.spec.ts` 테스트에 영향
 
 ### Tests:
-_(비워둠 — `/go-phase` 실행 시 발견하면서 추가)_
+- [x] shouldSaveHistoryToDb: 스크립트 생성 완료 시 DB에 저장
+- [x] shouldReturnUserHistoryList: 사용자별 히스토리 목록 반환 (최신순, 페이지네이션)
+- [x] shouldReturnHistoryDetail: 본인 히스토리 상세 조회
+- [x] shouldReturn404ForOtherUserHistory: 타 사용자 히스토리 접근 시 404
+- [x] shouldDeleteOwnHistory: 본인 히스토리 삭제
+- [x] shouldReturn404WhenDeletingOtherUserHistory: 타 사용자 히스토리 삭제 시 404
+- [x] shouldReturnHistoryList (controller): 로그인 사용자의 히스토리 목록 반환
+- [x] shouldReturnHistoryDetail (controller): 히스토리 상세 조회
+- [x] shouldDeleteHistory (controller): 히스토리 삭제
+
+### Done:
+- PrismaService 주입, saveHistory/getHistoryList/getHistoryDetail/deleteHistory 구현
+- Controller에 GET /history, GET /history/:id, DELETE /history/:id 추가
+- 타 사용자 접근 시 404 반환 (userId 기반 접근 제어)
+- 기존 mock 파일 수정 (createMockInvalidFile: text/plain으로 변경)
 
 ---
 
@@ -106,7 +124,20 @@ _(비워둠 — `/go-phase` 실행 시 발견하면서 추가)_
 **Edge Cases**: JWT 만료 → 401 → 리다이렉트
 
 ### Tests:
-_(비워둠 — `/go-phase` 실행 시 발견하면서 추가)_
+- [x] shouldStartLoggedOut: 초기 상태는 로그아웃
+- [x] shouldSetTokenAndDecodeUser: 토큰 설정 시 사용자 정보 디코딩
+- [x] shouldClearOnLogout: 로그아웃 시 토큰과 사용자 정보 삭제
+- [x] shouldHandleUserWithoutPicture: picture 없는 사용자 처리
+- [x] shouldSetupRequestInterceptor: request 인터셉터 등록
+- [x] shouldSetupResponseInterceptor: response 인터셉터 등록
+- [x] shouldAttachAuthorizationHeader: 토큰 있으면 Authorization 헤더 첨부
+- [x] shouldNotAttachHeaderWhenNoToken: 토큰 없으면 헤더 미첨부
+- [x] shouldLogoutOn401: 401 응답 시 로그아웃
+
+### Done:
+- authStore: Zustand 기반 JWT 토큰 저장, 디코딩, 로그아웃
+- apiClient: axios 인터셉터 (Authorization 헤더 자동 첨부, 401 시 로그아웃)
+- barrel export (index.ts)
 
 ---
 
@@ -118,7 +149,19 @@ _(비워둠 — `/go-phase` 실행 시 발견하면서 추가)_
 **Edge Cases**: 페이지네이션, 삭제된 항목 상세 접근
 
 ### Tests:
-_(비워둠 — `/go-phase` 실행 시 발견하면서 추가)_
+- [x] shouldFetchHistoryList: 히스토리 목록 API 호출
+- [x] shouldFetchWithPagination: 페이지네이션 파라미터 전달
+- [x] shouldFetchHistoryDetail: 히스토리 상세 API 호출
+- [x] shouldDeleteHistoryItem: 히스토리 삭제 API 호출
+- [x] shouldStartWithEmptyState: 초기 상태는 빈 목록
+- [x] shouldFetchList (hook): 목록 조회
+- [x] shouldHandleFetchError: 조회 실패 시 에러 상태
+- [x] shouldDeleteItem (hook): 항목 삭제 후 목록에서 제거
+
+### Done:
+- historyApi: fetchList(page, limit), fetchDetail(id), deleteItem(id)
+- useHistory hook: items, total, loading, error, fetchList, deleteItem
+- barrel export (index.ts)
 
 ---
 
@@ -129,10 +172,11 @@ _(비워둠 — `/go-phase` 실행 시 발견하면서 추가)_
 **Scope**: `apps/user-client/src/features/auth/pages/LoginPage.tsx`
 
 ### Tasks:
-- [ ] Google 로그인 버튼이 있는 로그인 페이지 구현
-- [ ] 앱 로고/이름, 설명 텍스트 표시
-- [ ] Google 인증 실패 시 에러 메시지 표시
-- [ ] 이미 로그인 상태면 홈으로 리다이렉트
+- [x] Google 로그인 버튼이 있는 로그인 페이지 구현
+- [x] 앱 로고/이름, 설명 텍스트 표시
+- [x] Google 인증 실패 시 에러 메시지 표시
+- [x] 이미 로그인 상태면 홈으로 리다이렉트
+- [x] AuthCallbackPage: OAuth 콜백에서 토큰 저장 후 홈 리다이렉트
 
 ---
 
@@ -141,13 +185,14 @@ _(비워둠 — `/go-phase` 실행 시 발견하면서 추가)_
 **Scope**: `apps/user-client/src/components/Layout.tsx`, `apps/user-client/src/components/Navbar.tsx`, `apps/user-client/src/App.tsx`
 
 ### Tasks:
-- [ ] Layout 컴포넌트: Navbar + children(Outlet)
-- [ ] Navbar: 로고/앱이름, "스크립트 생성", "히스토리" 메뉴
-- [ ] 현재 활성 메뉴 시각적 표시 (NavLink active)
-- [ ] 우측 사용자 프로필 (이미지 + 이름), 클릭 시 로그아웃 드롭다운
-- [ ] 프로필 이미지 로드 실패 시 이니셜 대체
-- [ ] 모바일 반응형 (햄버거 메뉴)
-- [ ] App.tsx 라우트 재구성: Layout 래핑, /login, /history 추가, AuthProvider
+- [x] Layout 컴포넌트: Navbar + children(Outlet), 비로그인 시 /login 리다이렉트
+- [x] Navbar: 로고/앱이름, "스크립트 생성", "히스토리" 메뉴
+- [x] 현재 활성 메뉴 시각적 표시 (NavLink active)
+- [x] 우측 사용자 프로필 (이미지 + 이름), 클릭 시 로그아웃 드롭다운
+- [x] 프로필 이미지 로드 실패 시 이니셜 대체
+- [x] 모바일 반응형 (햄버거 메뉴)
+- [x] App.tsx 라우트 재구성: Layout 래핑, /login, /auth/callback, /history 추가
+- [x] localStorage에서 토큰 복원 (앱 시작 시)
 
 ---
 
@@ -156,11 +201,11 @@ _(비워둠 — `/go-phase` 실행 시 발견하면서 추가)_
 **Scope**: `apps/user-client/src/features/history/pages/HistoryPage.tsx`
 
 ### Tasks:
-- [ ] 히스토리 목록: 파일명, 생성일시, 슬라이드 수, 총 발표 시간 카드
-- [ ] 항목 클릭 → 상세 보기 (ResultSummary + SlideScriptCard 재사용)
-- [ ] 삭제 버튼 + 확인 다이얼로그
-- [ ] 빈 상태 안내 메시지
-- [ ] 페이지네이션 또는 무한 스크롤
+- [x] 히스토리 목록: 파일명, 생성일시, 슬라이드 수, 총 발표 시간 카드
+- [x] 항목 클릭 → 상세 보기 (SlideScriptCard 재사용)
+- [x] 삭제 버튼 + 확인 다이얼로그
+- [x] 빈 상태 안내 메시지
+- [x] 페이지네이션
 
 ---
 
