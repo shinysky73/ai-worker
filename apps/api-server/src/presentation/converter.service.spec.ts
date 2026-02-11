@@ -96,7 +96,7 @@ describe('ConverterService', () => {
 
       const result = await service.convertPdfToImages(pdfPath);
 
-      expect(result.imageCount).toBe(3);
+      expect(result.slideCount).toBe(3);
     });
 
     it('shouldRetryOnFailure: 변환 실패 시 최대 3회 재시도', async () => {
@@ -110,7 +110,7 @@ describe('ConverterService', () => {
       const result = await service.convertPdfToImages(pdfPath);
 
       expect(mockExecAsync).toHaveBeenCalledTimes(3);
-      expect(result.imageCount).toBe(1);
+      expect(result.slideCount).toBe(1);
     });
 
     it('shouldRejectTooManySlides: 50장 초과 슬라이드 거부', async () => {

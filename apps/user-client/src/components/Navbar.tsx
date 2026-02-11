@@ -32,6 +32,9 @@ export function Navbar() {
               <NavLink to="/history" className={navLinkClass}>
                 히스토리
               </NavLink>
+              <NavLink to="/image-analysis" className={navLinkClass}>
+                이미지 분석
+              </NavLink>
             </div>
           </div>
 
@@ -105,6 +108,9 @@ export function Navbar() {
           </NavLink>
           <NavLink to="/history" className={navLinkClass} onClick={() => setMenuOpen(false)}>
             히스토리
+          </NavLink>
+          <NavLink to="/image-analysis" className={navLinkClass} onClick={() => setMenuOpen(false)}>
+            이미지 분석
           </NavLink>
         </div>
       )}

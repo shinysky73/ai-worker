@@ -25,10 +25,12 @@ describe('ScriptGeneratorService', () => {
       response: {
         text: () =>
           JSON.stringify({
-            content: 'This slide shows a chart about sales growth.',
-            script:
-              'As you can see from this chart, our sales have grown significantly over the past quarter.',
-            keywords: ['sales', 'growth', 'chart'],
+            visibleText: 'This slide shows a chart about sales growth.',
+            charts: 'bar chart showing sales growth',
+            images: '',
+            layoutType: 'chart',
+            keyMessage: 'Sales are increasing.',
+            speakerNotes: 'Explain the details of the sales growth.',
           }),
       },
     });
@@ -59,111 +61,261 @@ describe('ScriptGeneratorService', () => {
       const result = await service.analyzeSlide(imagePath);
 
       expect(mockGenerateContent).toHaveBeenCalled();
-      expect(result.content).toBeDefined();
-      expect(result.content).toContain('chart');
+      expect(result.charts).toBeDefined();
+      expect(result.charts).toContain('chart');
     });
   });
 
   describe('generateScript', () => {
     it('shouldGenerateScriptForSlide: 슬라이드별 발표 스크립트 생성', async () => {
       const imagePath = '/uploads/presentations/test-uuid/test-uuid-1.png';
+      const slideAnalysis = await service.analyzeSlide(imagePath);
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              script: 'This is a generated script.',
+              transition: 'Next slide.',
+            }),
+        },
+      });
 
-      const result = await service.generateScript(imagePath);
+      const scriptResult = await service.generateScriptWithContext(
+        slideAnalysis,
+        [],
+      );
 
-      expect(result.script).toBeDefined();
-      expect(result.script.length).toBeGreaterThan(0);
-      expect(result.slideNumber).toBe(1);
+      expect(scriptResult.script).toBeDefined();
+      expect(scriptResult.script.length).toBeGreaterThan(0);
+      expect(scriptResult.slideNumber).toBe(1);
     });
 
     it('shouldCalculateEstimatedTime: 스크립트 기반 예상 시간 계산 (150단어/분)', async () => {
       // Script with exactly 25 words
       const scriptWith25Words =
         'One two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five';
-      mockGenerateContent.mockResolvedValue({
+
+      const imagePath = '/uploads/presentations/test-uuid/test-uuid-1.png';
+
+      // Mock for analyzeSlide
+      mockGenerateContent.mockResolvedValueOnce({
         response: {
           text: () =>
             JSON.stringify({
-              content: 'Test slide content',
-              script: scriptWith25Words,
-              keywords: ['test'],
+              visibleText: 'Test slide content',
+              charts: '',
+              images: '',
+              layoutType: 'content',
+              keyMessage: 'Key message',
+              speakerNotes: 'Speaker notes',
             }),
         },
       });
 
-      const imagePath = '/uploads/presentations/test-uuid/test-uuid-1.png';
-      const result = await service.generateScript(imagePath);
+      const slideAnalysis = await service.analyzeSlide(imagePath);
+
+      // Mock for generateScriptWithContext
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              script: scriptWith25Words,
+              transition: 'Next slide.',
+            }),
+        },
+      });
+
+      const scriptResult = await service.generateScriptWithContext(
+        slideAnalysis,
+        [],
+      );
 
       // 25 words / 150 words per minute = 0.1667 minutes = 10 seconds (rounded)
-      expect(result.estimatedSeconds).toBe(10);
+      expect(scriptResult.estimatedSeconds).toBe(10);
     });
 
     it('shouldApplyFormalTone: 격식체 톤 적용', async () => {
       const imagePath = '/uploads/presentations/test-uuid/test-uuid-1.png';
 
-      await service.generateScript(imagePath, { tone: 'formal' });
+      // Mock for analyzeSlide
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              visibleText: 'Some slide content.',
+              charts: '',
+              images: '',
+              layoutType: 'content',
+              keyMessage: 'Key message',
+              speakerNotes: 'Speaker notes',
+            }),
+        },
+      });
+
+      const slideAnalysis = await service.analyzeSlide(imagePath);
+
+      // Mock for generateScriptWithContext
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              script: 'This is a formal script.',
+              transition: 'Next slide formally.',
+            }),
+        },
+      });
+
+      await service.generateScriptWithContext(slideAnalysis, [], {
+        tone: 'formal',
+      });
 
       expect(mockGenerateContent).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.stringContaining('formal'),
-        ]),
+        expect.arrayContaining([expect.stringContaining('격식체를 사용하여')]),
       );
     });
 
     it('shouldApplyCasualTone: 비격식체 톤 적용', async () => {
       const imagePath = '/uploads/presentations/test-uuid/test-uuid-1.png';
 
-      await service.generateScript(imagePath, { tone: 'casual' });
+      // Mock for analyzeSlide
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              visibleText: 'Some casual slide content.',
+              charts: '',
+              images: '',
+              layoutType: 'content',
+              keyMessage: 'Casual key message',
+              speakerNotes: 'Casual speaker notes',
+            }),
+        },
+      });
+
+      const slideAnalysis = await service.analyzeSlide(imagePath);
+
+      // Mock for generateScriptWithContext
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              script: 'This is a casual script.',
+              transition: 'Next slide casually.',
+            }),
+        },
+      });
+
+      await service.generateScriptWithContext(slideAnalysis, [], {
+        tone: 'casual',
+      });
 
       expect(mockGenerateContent).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.stringContaining('casual'),
-        ]),
+        expect.arrayContaining([expect.stringContaining('비격식체를 사용하여')]),
       );
     });
 
     it('shouldHandleTextOnlySlide: 텍스트만 있는 슬라이드 처리', async () => {
-      mockGenerateContent.mockResolvedValue({
+      const imagePath = '/uploads/presentations/test-uuid/test-uuid-1.png';
+
+      // Mock for analyzeSlide
+      mockGenerateContent.mockResolvedValueOnce({
         response: {
           text: () =>
             JSON.stringify({
-              content: 'This is a text-only slide with bullet points.',
-              script:
-                'Let me walk you through these key points on the slide.',
-              keywords: ['bullet points', 'key points'],
-              slideType: 'text',
+              visibleText: 'This is a text-only slide with bullet points.',
+              charts: '',
+              images: '',
+              layoutType: 'text',
+              keyMessage: 'Key message for text slide',
+              speakerNotes: 'Speaker notes for text slide',
             }),
         },
       });
 
-      const imagePath = '/uploads/presentations/test-uuid/test-uuid-1.png';
-      const result = await service.generateScript(imagePath);
+      const slideAnalysis = await service.analyzeSlide(imagePath);
 
-      expect(result.script).toBeDefined();
-      expect(result.script.length).toBeGreaterThan(0);
+      // Mock for generateScriptWithContext
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              script: 'Let me walk you through these key points on the slide.',
+              transition: 'Transition for text slide.',
+            }),
+        },
+      });
+
+      const scriptResult = await service.generateScriptWithContext(
+        slideAnalysis,
+        [],
+      );
+
+      expect(scriptResult.script).toBeDefined();
+      expect(scriptResult.script.length).toBeGreaterThan(0);
     });
 
     it('shouldHandleImageOnlySlide: 이미지/차트만 있는 슬라이드 처리', async () => {
-      mockGenerateContent.mockResolvedValue({
+      const imagePath = '/uploads/presentations/test-uuid/test-uuid-1.png';
+
+      // Mock for analyzeSlide
+      mockGenerateContent.mockResolvedValueOnce({
         response: {
           text: () =>
             JSON.stringify({
-              content: 'A pie chart showing market share distribution.',
-              script:
-                'This chart illustrates our market share compared to competitors.',
-              keywords: ['pie chart', 'market share', 'distribution'],
-              slideType: 'image',
+              visibleText: '',
+              charts: 'A pie chart showing market share distribution.',
+              images: '',
+              layoutType: 'image',
+              keyMessage: 'Market share analysis.',
+              speakerNotes: 'Details about market share distribution.',
             }),
         },
       });
 
-      const imagePath = '/uploads/presentations/test-uuid/test-uuid-1.png';
-      const result = await service.generateScript(imagePath);
+      const slideAnalysis = await service.analyzeSlide(imagePath);
 
-      expect(result.script).toBeDefined();
-      expect(result.script).toContain('chart');
+      // Mock for generateScriptWithContext
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              script:
+                'This chart illustrates our market share compared to competitors.',
+              transition: 'Transition for image slide.',
+            }),
+        },
+      });
+
+      const scriptResult = await service.generateScriptWithContext(
+        slideAnalysis,
+        [],
+      );
+
+      expect(scriptResult.script).toBeDefined();
+      expect(scriptResult.script).toContain('chart');
     });
 
     it('shouldRetryOnApiFailure: API 실패 시 재시도 (exponential backoff)', async () => {
+      const imagePath = '/uploads/presentations/test-uuid/test-uuid-1.png';
+
+      // Mock for analyzeSlide (successful first try)
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              visibleText: 'Content for retry test.',
+              charts: '',
+              images: '',
+              layoutType: 'content',
+              keyMessage: 'Retry key message.',
+              speakerNotes: 'Retry speaker notes.',
+            }),
+        },
+      });
+
+      const slideAnalysis = await service.analyzeSlide(imagePath);
+
+      // Mocks for generateScriptWithContext (two failures, then success)
       mockGenerateContent
         .mockRejectedValueOnce(new Error('API rate limit exceeded'))
         .mockRejectedValueOnce(new Error('API rate limit exceeded'))
@@ -171,18 +323,20 @@ describe('ScriptGeneratorService', () => {
           response: {
             text: () =>
               JSON.stringify({
-                content: 'Success after retries.',
                 script: 'This is the script after successful retry.',
-                keywords: ['retry', 'success'],
+                transition: 'Retry transition.',
               }),
           },
         });
 
-      const imagePath = '/uploads/presentations/test-uuid/test-uuid-1.png';
-      const result = await service.generateScript(imagePath);
+      const scriptResult = await service.generateScriptWithContext(
+        slideAnalysis,
+        [],
+      );
 
-      expect(mockGenerateContent).toHaveBeenCalledTimes(3);
-      expect(result.script).toContain('retry');
+      // The first call was for analyzeSlide, then three for generateScriptWithContext
+      expect(mockGenerateContent).toHaveBeenCalledTimes(4);
+      expect(scriptResult.script).toContain('retry');
     });
   });
 });

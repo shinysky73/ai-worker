@@ -4,6 +4,7 @@ import { PresentationPage } from './features/presentation';
 import { LoginPage, AuthCallbackPage, setupInterceptors, useAuthStore } from './features/auth';
 import { Layout } from './components/Layout';
 import { HistoryPage } from './features/history/pages/HistoryPage';
+import { ImageAnalysisPage } from './features/image-analysis';
 
 function AppContent() {
   const { setToken } = useAuthStore();
@@ -24,6 +25,7 @@ function AppContent() {
         <Route path="/" element={<PresentationPage />} />
         <Route path="/presentation" element={<PresentationPage />} />
         <Route path="/history" element={<HistoryPage />} />
+        <Route path="/image-analysis" element={<ImageAnalysisPage />} />
       </Route>
     </Routes>
   );
