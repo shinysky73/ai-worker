@@ -1,6 +1,6 @@
 # TDD Plan: 프레젠테이션 발표 스크립트 생성기
 
-**PRD**: `docs/presentation-script-generator/prd.md`
+**PRD**: `docs/02-presentation-script-generator/prd.md`
 **Created**: 2026-02-02
 **Status**: Complete
 

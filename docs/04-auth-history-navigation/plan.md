@@ -1,6 +1,6 @@
 # TDD Plan: Google 로그인, History 저장, 네비게이션 메뉴
 
-**PRD**: `docs/auth-history-navigation/prd.md`
+**PRD**: `docs/04-auth-history-navigation/prd.md`
 **Created**: 2026-02-06
 **Status**: Complete
 

@@ -359,5 +359,5 @@ ai-worker/
 
 ### Related Documents
 
-- 기존 PRD: `docs/presentation-script-generator/prd.md`
-- 구현 계획: `docs/presentation-script-generator/plan.md`
+- 기존 PRD: `docs/02-presentation-script-generator/prd.md`
+- 구현 계획: `docs/02-presentation-script-generator/plan.md`

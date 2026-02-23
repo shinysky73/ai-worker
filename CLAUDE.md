@@ -163,7 +163,7 @@ docs/
 ## Last Work Position
 
 - **Feature**: Google 로그인, History 저장, 네비게이션 메뉴
-- **PRD**: `docs/auth-history-navigation/prd.md`
-- **Plan**: `docs/auth-history-navigation/plan.md`
+- **PRD**: `docs/04-auth-history-navigation/prd.md`
+- **Plan**: `docs/04-auth-history-navigation/plan.md`
 - **Status**: 전체 Phase 완료 (Phase 1~9).
 - **Pre-existing test failures**: converter.service.spec.ts, script-generator.service.spec.ts — 이전 리팩토링에서 인터페이스 변경 후 테스트 미업데이트. presentationApi.test.ts — API 호출 검증 assertion 미업데이트.

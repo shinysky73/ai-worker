@@ -1,6 +1,6 @@
 # TDD Plan: 표/차트 이미지 → 텍스트 설명 변환기
 
-**PRD**: `docs/image-analysis/prd.md`
+**PRD**: `docs/05-image-analysis/prd.md`
 **Created**: 2026-02-10
 **Status**: Completed
 
