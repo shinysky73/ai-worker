@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(pnpm -F @milo-seah/api-server test:*)"
+      "Bash(pnpm -F @milo-seah/api-server test:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

@@ -18,7 +18,7 @@ Phase 단위 방향과 위험 요소만 정의한다. 구체적인 테스트는 
 
 ### 1. PRD 확인
 
-- `docs/{feature-name}/prd.md` 읽기
+- `docs/{NN}-{feature-name}/prd.md` 읽기
 - Acceptance Criteria와 Edge Cases 파악
 - UI/UX 요구사항 분리
 
@@ -45,7 +45,7 @@ Phase 단위 방향과 위험 요소만 정의한다. 구체적인 테스트는 
 
 ### 4. plan.md 생성
 
-`docs/{feature-name}/plan.md`에 저장한다.
+`docs/{NN}-{feature-name}/plan.md`에 저장한다. (PRD와 동일한 번호 디렉토리 사용)
 템플릿: [assets/plan-template.md](assets/plan-template.md)
 
 ## Phase Format
@@ -99,6 +99,6 @@ _(비워둠 — `/go-phase` 실행 시 발견하면서 추가)_
 
 ## Output
 
-1. Plan saved to `docs/{feature-name}/plan.md`
+1. Plan saved to `docs/{NN}-{feature-name}/plan.md`
 2. Ready to run `/go-phase` — 코드를 읽고 테스트를 발견하면서 구현
 3. UI/UX phases: 직접 구현 (TDD 없음)

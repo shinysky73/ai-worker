@@ -33,7 +33,11 @@ PRD 작성 전에:
 ### 3. PRD 생성
 
 템플릿: [assets/prd-template.md](assets/prd-template.md)
-저장 위치: `docs/{feature-name}/prd.md`
+
+**저장 위치 결정 (자동 번호 매기기)**:
+1. `docs/` 디렉토리에서 `NN-` 접두사가 붙은 기존 디렉토리를 확인한다
+2. 가장 큰 번호를 찾아 +1 한다 (없으면 01부터 시작)
+3. 저장 위치: `docs/{NN}-{feature-name}/prd.md` (예: `docs/28-my-feature/prd.md`)
 
 ### 4. 사용자 확인
 
@@ -55,5 +59,5 @@ PRD 작성 전에:
 
 ## Output
 
-1. PRD saved to `docs/{feature-name}/prd.md`
+1. PRD saved to `docs/{NN}-{feature-name}/prd.md`
 2. Ready to run `/plan` to create TDD implementation plan
