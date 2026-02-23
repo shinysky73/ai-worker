@@ -1,6 +1,6 @@
 # TDD Plan: {Feature Name}
 
-**PRD**: `docs/{feature-name}/prd.md`
+**PRD**: `docs/{NN}-{feature-name}/prd.md`
 **Created**: {Date}
 **Status**: Planning | In Progress | Completed
 

@@ -16,7 +16,7 @@ Plan의 Phase를 읽고, PRD AC와 코드를 보면서 테스트를 **발견**�
 
 | 사용법 | Plan | PRD |
 |--------|------|-----|
-| `/go-phase feature 1` | `docs/feature/plan.md` Phase 1 | `docs/feature/prd.md` |
+| `/go-phase feature 1` | `docs/{NN}-feature/plan.md` Phase 1 | `docs/{NN}-feature/prd.md` |
 | `/go-phase feature` | 첫 미완료 Phase | 동일 |
 | `/go-phase` | 사용자에게 질문 | 동일 |
 

@@ -148,7 +148,7 @@ This project follows Kent Beck's TDD and Tidy First principles.
 
 ```
 docs/
-  {feature-name}/
+  {NN}-{feature-name}/
     prd.md      # /prd 로 생성
     plan.md     # /plan 으로 생성
 ```
