@@ -162,8 +162,6 @@ docs/
 
 ## Last Work Position
 
-- **Feature**: Google 로그인, History 저장, 네비게이션 메뉴
-- **PRD**: `docs/04-auth-history-navigation/prd.md`
-- **Plan**: `docs/04-auth-history-navigation/plan.md`
-- **Status**: 전체 Phase 완료 (Phase 1~9).
-- **Pre-existing test failures**: converter.service.spec.ts, script-generator.service.spec.ts — 이전 리팩토링에서 인터페이스 변경 후 테스트 미업데이트. presentationApi.test.ts — API 호출 검증 assertion 미업데이트.
+- **Feature**: image-analysis & presentation 코드 리뷰 + 보안/품질 수정
+- **Status**: 코드 리뷰 지적사항 전부 수정 완료. 전체 테스트 154개 pass, pre-existing failures 0개.
+- **Handoff**: 상세 인수인계 문서는 `HANDOFF.md` 참고. 새 세션 시작 시 반드시 읽을 것.
