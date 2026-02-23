@@ -1,9 +1,10 @@
-import { Injectable, BadRequestException, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, OnModuleDestroy } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { ImageAnalyzerService } from './image-analyzer.service';
 import type { ImageAnalysisResult, AnalyzeOptions } from './image-analyzer.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 export interface UploadedFile {
   fieldname: string;
@@ -54,10 +55,16 @@ const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
 const WEBP_RIFF = Buffer.from([0x52, 0x49, 0x46, 0x46]); // "RIFF"
 
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads', 'image-analysis');
+const HISTORY_IMAGE_DIR = path.join(process.cwd(), 'uploads', 'image-analysis', 'history');
 
 interface StoreEntry<T> {
   data: T;
   createdAt: number;
+}
+
+interface UploadMeta {
+  userId: string;
+  filename: string;
 }
 
 @Injectable()
@@ -65,9 +72,13 @@ export class ImageAnalysisService implements OnModuleDestroy {
   private statusStore = new Map<string, StoreEntry<StatusResult>>();
   private resultStore = new Map<string, StoreEntry<AnalysisResultWithId>>();
   private optionsStore = new Map<string, StoreEntry<UploadOptions>>();
+  private metaStore = new Map<string, StoreEntry<UploadMeta>>();
   private cleanupTimer: ReturnType<typeof setInterval>;
 
-  constructor(private readonly imageAnalyzerService: ImageAnalyzerService) {
+  constructor(
+    private readonly imageAnalyzerService: ImageAnalyzerService,
+    private readonly prismaService: PrismaService,
+  ) {
     this.cleanupTimer = setInterval(() => this.cleanupExpiredEntries(), CLEANUP_INTERVAL_MS);
   }
 
@@ -82,6 +93,7 @@ export class ImageAnalysisService implements OnModuleDestroy {
         this.statusStore.delete(key);
         this.resultStore.delete(key);
         this.optionsStore.delete(key);
+        this.metaStore.delete(key);
       }
     }
   }
@@ -94,7 +106,7 @@ export class ImageAnalysisService implements OnModuleDestroy {
     this.resultStore.set(id, { data: result, createdAt: Date.now() });
   }
 
-  async uploadFile(file: UploadedFile, options?: UploadOptions): Promise<UploadResult> {
+  async uploadFile(file: UploadedFile, options?: UploadOptions, userId?: string): Promise<UploadResult> {
     this.validateFileType(file);
     this.validateFileSize(file);
     this.validateFileIntegrity(file);
@@ -117,6 +129,10 @@ export class ImageAnalysisService implements OnModuleDestroy {
 
     if (options) {
       this.optionsStore.set(id, { data: options, createdAt: Date.now() });
+    }
+
+    if (userId) {
+      this.metaStore.set(id, { data: { userId, filename: decodedFilename }, createdAt: Date.now() });
     }
 
     // Start async processing
@@ -189,6 +205,33 @@ export class ImageAnalysisService implements OnModuleDestroy {
       });
 
       this.setStatus(id, { id, status: 'completed', progress: 100, message: '분석 완료!' });
+
+      // Save to history if userId is available
+      const meta = this.metaStore.get(id);
+      if (meta?.data.userId) {
+        try {
+          const ext = path.extname(filePath);
+          await fs.mkdir(HISTORY_IMAGE_DIR, { recursive: true });
+          const permanentPath = path.join(HISTORY_IMAGE_DIR, `${id}${ext}`);
+          await fs.rename(filePath, permanentPath);
+
+          await this.prismaService.imageAnalysisHistory.create({
+            data: {
+              userId: meta.data.userId,
+              filename: meta.data.filename,
+              imageType: analysisResult.imageType,
+              description: analysisResult.description,
+              insights: analysisResult.insights,
+              imagePath: permanentPath,
+            },
+          });
+        } catch (historyError) {
+          console.error(`[${id}] Failed to save image analysis history:`, historyError);
+        }
+      } else {
+        // No user session — delete temp file
+        await fs.unlink(filePath).catch(() => {});
+      }
     } catch (error) {
       this.setStatus(id, {
         id,
@@ -211,5 +254,47 @@ export class ImageAnalysisService implements OnModuleDestroy {
   async getResult(id: string): Promise<AnalysisResultWithId | null> {
     const entry = this.resultStore.get(id);
     return entry?.data || null;
+  }
+
+  async getHistoryList(userId: string, page = 1, limit = 20) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.prismaService.imageAnalysisHistory.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prismaService.imageAnalysisHistory.count({ where: { userId } }),
+    ]);
+    return { items, total, page, limit };
+  }
+
+  async getHistoryDetail(userId: string, historyId: string) {
+    const history = await this.prismaService.imageAnalysisHistory.findFirst({
+      where: { id: historyId, userId },
+    });
+    if (!history) throw new NotFoundException('History not found');
+    return history;
+  }
+
+  async deleteHistory(userId: string, historyId: string) {
+    const history = await this.prismaService.imageAnalysisHistory.findFirst({
+      where: { id: historyId, userId },
+    });
+    if (!history) throw new NotFoundException('History not found');
+    await this.prismaService.imageAnalysisHistory.delete({ where: { id: historyId } });
+    if (history.imagePath) {
+      await fs.unlink(history.imagePath).catch(() => {});
+    }
+  }
+
+  async getHistoryImagePath(userId: string, historyId: string): Promise<string> {
+    const history = await this.prismaService.imageAnalysisHistory.findFirst({
+      where: { id: historyId, userId },
+      select: { imagePath: true },
+    });
+    if (!history?.imagePath) throw new NotFoundException('Image not found');
+    return history.imagePath;
   }
 }

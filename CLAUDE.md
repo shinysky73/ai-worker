@@ -128,6 +128,9 @@ This project follows Kent Beck's TDD and Tidy First principles.
 | `/go-phase` | Phase의 TDD 사이클 실행 (테스트 발견 → Red → Green → Refactor) |
 | `/check-tests` | 전체 테스트 실행 및 결과 보고 |
 | `/commit-tdd` | `[BEHAVIORAL]` / `[STRUCTURAL]` 접두사 커밋 |
+| `/code-review` | 코드 리뷰 요청/수신/완료 검증 게이트 (증거 기반 접근) |
+| `/debugging` | 체계적 디버깅 (Root Cause → Pattern → Hypothesis → Fix) |
+| `/react-best-practices` | React 성능 최적화 규칙 (Vercel 기준, Vite 환경 적용) |
 
 ### Workflow
 
@@ -135,6 +138,10 @@ This project follows Kent Beck's TDD and Tidy First principles.
 /prd → /plan → /go-phase → /check-tests → /commit-tdd
                    ↑              |
                    └──────────────┘ (repeat)
+
++ /code-review   — 주요 기능 완료 후 PR 전
++ /debugging     — 버그/테스트 실패 발생 시
++ /react-best-practices — React 컴포넌트 작성/리뷰 시
 ```
 
 ### Document Structure

@@ -1,5 +1,6 @@
 // Pages
 export { ImageAnalysisPage } from './pages/ImageAnalysisPage';
+export { ImageAnalysisHistoryPage } from './pages/ImageAnalysisHistoryPage';
 
 // Components
 export { ImageUploader } from './components/ImageUploader';

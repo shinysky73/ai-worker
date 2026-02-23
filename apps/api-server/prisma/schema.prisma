@@ -16,7 +16,23 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  histories PresentationHistory[]
+  histories             PresentationHistory[]
+  imageAnalysisHistories ImageAnalysisHistory[]
+}
+
+model ImageAnalysisHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  filename    String
+  imageType   String
+  description String
+  insights    Json
+  imagePath   String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
 }
 
 model PresentationHistory {

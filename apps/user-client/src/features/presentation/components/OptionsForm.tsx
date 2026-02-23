@@ -7,11 +7,16 @@ interface OptionsFormProps {
   disabled?: boolean;
 }
 
-export function OptionsForm({
-  options,
-  onChange,
-  disabled = false,
-}: OptionsFormProps) {
+const selectClass = `
+  w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-600
+  rounded-xl shadow-sm bg-white dark:bg-gray-700/50
+  text-gray-900 dark:text-gray-100
+  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+  disabled:opacity-50 disabled:cursor-not-allowed
+  transition-colors
+`;
+
+export function OptionsForm({ options, onChange, disabled = false }: OptionsFormProps) {
   const handleToneChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const tone = e.target.value as 'formal' | 'casual' | undefined;
     onChange({ ...options, tone: tone || undefined });
@@ -19,10 +24,7 @@ export function OptionsForm({
 
   const handleMinutesChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (!value) {
-      onChange({ ...options, targetMinutes: undefined });
-      return;
-    }
+    if (!value) { onChange({ ...options, targetMinutes: undefined }); return; }
     const parsed = parseInt(value, 10);
     if (!isNaN(parsed) && parsed >= 1 && parsed <= 120) {
       onChange({ ...options, targetMinutes: parsed });
@@ -30,38 +32,20 @@ export function OptionsForm({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label
-          htmlFor="tone"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-        >
+        <label htmlFor="tone" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">
           발표 톤
         </label>
-        <select
-          id="tone"
-          value={options.tone || ''}
-          onChange={handleToneChange}
-          disabled={disabled}
-          className="
-            w-full px-3 py-2 border border-gray-300 dark:border-gray-600
-            rounded-md shadow-sm bg-white dark:bg-gray-800
-            text-gray-900 dark:text-gray-100
-            focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-            disabled:opacity-50 disabled:cursor-not-allowed
-          "
-        >
+        <select id="tone" value={options.tone || ''} onChange={handleToneChange} disabled={disabled} className={selectClass}>
           <option value="">기본</option>
-          <option value="formal">격식체 (비즈니스/공식 발표)</option>
-          <option value="casual">비격식체 (친근한/캐주얼)</option>
+          <option value="formal">격식체 (비즈니스·공식)</option>
+          <option value="casual">비격식체 (친근·캐주얼)</option>
         </select>
       </div>
 
       <div>
-        <label
-          htmlFor="targetMinutes"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-        >
+        <label htmlFor="targetMinutes" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">
           목표 발표 시간 (분)
         </label>
         <input
@@ -73,17 +57,9 @@ export function OptionsForm({
           max={120}
           placeholder="예: 15"
           disabled={disabled}
-          className="
-            w-full px-3 py-2 border border-gray-300 dark:border-gray-600
-            rounded-md shadow-sm bg-white dark:bg-gray-800
-            text-gray-900 dark:text-gray-100
-            focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-            disabled:opacity-50 disabled:cursor-not-allowed
-          "
+          className={selectClass}
         />
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          1~120분 사이로 설정하세요. 비워두면 자동으로 계산됩니다.
-        </p>
+        <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">1~120분 · 비워두면 자동 계산</p>
       </div>
     </div>
   );

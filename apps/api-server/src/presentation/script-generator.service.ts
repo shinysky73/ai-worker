@@ -72,7 +72,7 @@ export class ScriptGeneratorService {
 분석 항목:
 1. visibleText: 슬라이드에 보이는 모든 텍스트를 그대로 추출 (제목, 본문, 캡션, 주석 등 전부 포함)
 2. charts: 차트나 그래프가 있다면 유형(막대, 선, 원형 등)과 데이터 경향을 설명. 없으면 빈 문자열
-3. images: 사진이나 아이콘, 다이어그램이 있다면 무엇을 나타내는지 설명. 없으면 빈 문자열
+3. images: 의미 있는 사진이나 다이어그램이 있다면 무엇을 나타내는지 설명. 아이콘·화살표·장식 그래픽 등 UI 요소는 제외. 없으면 빈 문자열
 4. layoutType: 슬라이드 유형 (title, content, chart, comparison, image, closing 중 하나)
 5. keyMessage: 이 슬라이드가 전달하려는 핵심 메시지 1문장
 6. speakerNotes: 발표자가 알아야 할 보충 설명이나 맥락 (이미지에서 유추 가능한 것)
@@ -135,10 +135,11 @@ ${analysis.images ? `- 이미지/다이어그램: ${analysis.images}` : ''}
 ${analysis.speakerNotes ? `- 보충 설명: ${analysis.speakerNotes}` : ''}
 ${contextBlock}
 [작성 규칙]
-1. 슬라이드에 보이는 텍스트와 시각 자료(차트, 그래프, 이미지)를 모두 활용하세요.
+1. 슬라이드에 보이는 텍스트와 시각 자료(차트, 그래프, 의미 있는 이미지)를 활용하세요.
 2. 차트나 그래프가 있다면 데이터의 의미와 시사점을 반드시 언급하세요.
-3. ${positionHint}
-4. 이전 슬라이드와 자연스럽게 연결되는 전환 표현을 사용하세요.${toneInstruction}${lengthInstruction}
+3. 아이콘, 화살표, 장식적 그래픽 요소는 스크립트에서 언급하지 마세요. 내용과 메시지에만 집중하세요.
+4. ${positionHint}
+5. 이전 슬라이드와 자연스럽게 연결되는 전환 표현을 사용하세요.${toneInstruction}${lengthInstruction}
 
 JSON 형식으로 응답해주세요:
 - script: 발표 스크립트 (한글)
