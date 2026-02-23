@@ -169,9 +169,9 @@ describe('ScriptGeneratorService', () => {
         tone: 'formal',
       });
 
-      expect(mockGenerateContent).toHaveBeenCalledWith(
-        expect.arrayContaining([expect.stringContaining('격식체를 사용하여')]),
-      );
+      // The second generateContent call (for script generation) should contain the formal tone instruction
+      const scriptCall = mockGenerateContent.mock.calls[1];
+      expect(scriptCall[0]).toEqual(expect.stringContaining('격식체를 사용하여'));
     });
 
     it('shouldApplyCasualTone: 비격식체 톤 적용', async () => {
@@ -209,9 +209,9 @@ describe('ScriptGeneratorService', () => {
         tone: 'casual',
       });
 
-      expect(mockGenerateContent).toHaveBeenCalledWith(
-        expect.arrayContaining([expect.stringContaining('비격식체를 사용하여')]),
-      );
+      // The second generateContent call (for script generation) should contain the casual tone instruction
+      const scriptCall = mockGenerateContent.mock.calls[1];
+      expect(scriptCall[0]).toEqual(expect.stringContaining('비격식체를 사용하여'));
     });
 
     it('shouldHandleTextOnlySlide: 텍스트만 있는 슬라이드 처리', async () => {

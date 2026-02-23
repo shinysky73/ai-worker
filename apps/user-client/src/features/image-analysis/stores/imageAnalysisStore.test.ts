@@ -29,34 +29,12 @@ describe('imageAnalysisStore', () => {
     expect(options.detailLevel).toBe('detailed'); // 다른 옵션 유지
   });
 
-  it('shouldSetResult: 분석 결과 저장', () => {
-    const mockResult = {
-      id: 'test-id',
-      filename: 'chart.png',
-      imageType: 'chart' as const,
-      description: '차트 설명',
-      insights: ['인사이트'],
-    };
-
-    useImageAnalysisStore.getState().setResult(mockResult);
-    const { result } = useImageAnalysisStore.getState();
-    expect(result).toEqual(mockResult);
-  });
-
   it('shouldResetToDefaults: reset 시 기본값으로 복원', () => {
     useImageAnalysisStore.getState().setOptions({ detailLevel: 'brief', language: 'en' });
-    useImageAnalysisStore.getState().setResult({
-      id: 'test',
-      filename: 'test.png',
-      imageType: 'table',
-      description: '표',
-      insights: [],
-    });
 
     useImageAnalysisStore.getState().reset();
-    const { options, result } = useImageAnalysisStore.getState();
+    const { options } = useImageAnalysisStore.getState();
     expect(options.detailLevel).toBe('detailed');
     expect(options.language).toBe('ko');
-    expect(result).toBeNull();
   });
 });

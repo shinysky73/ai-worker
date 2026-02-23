@@ -34,7 +34,9 @@ export class ImageAnalysisController {
   constructor(private readonly imageAnalysisService: ImageAnalysisService) {}
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', {
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  }))
   async uploadFile(
     @Req() req: Request & { user: AuthUser },
     @UploadedFile() file: UploadedFileType,
@@ -52,10 +54,12 @@ export class ImageAnalysisController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
+    const parsedPage = Math.max(1, parseInt(page || '1', 10) || 1);
+    const parsedLimit = Math.min(100, Math.max(1, parseInt(limit || '20', 10) || 20));
     return this.imageAnalysisService.getHistoryList(
       req.user.id,
-      page ? parseInt(page, 10) : 1,
-      limit ? parseInt(limit, 10) : 20,
+      parsedPage,
+      parsedLimit,
     );
   }
 
@@ -111,13 +115,19 @@ export class ImageAnalysisController {
   }
 
   @Get(':id/status')
-  async getStatus(@Param('id') id: string): Promise<StatusResult> {
-    return this.imageAnalysisService.getStatus(id);
+  async getStatus(
+    @Req() req: Request & { user: AuthUser },
+    @Param('id') id: string,
+  ): Promise<StatusResult> {
+    return this.imageAnalysisService.getStatus(id, req.user.id);
   }
 
   @Get(':id/result')
-  async getResult(@Param('id') id: string): Promise<AnalysisResultWithId> {
-    const result = await this.imageAnalysisService.getResult(id);
+  async getResult(
+    @Req() req: Request & { user: AuthUser },
+    @Param('id') id: string,
+  ): Promise<AnalysisResultWithId> {
+    const result = await this.imageAnalysisService.getResult(id, req.user.id);
     if (!result) {
       throw new NotFoundException(`Analysis with ID ${id} not found`);
     }

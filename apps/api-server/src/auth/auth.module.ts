@@ -9,6 +9,7 @@ import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
+    ConfigModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -27,12 +28,17 @@ import { JwtStrategy } from './jwt.strategy';
     {
       provide: GoogleStrategy,
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) =>
-        new GoogleStrategy(
-          configService.get<string>('GOOGLE_CLIENT_ID')!,
+      useFactory: (configService: ConfigService) => {
+        const clientId = configService.get<string>('GOOGLE_CLIENT_ID');
+        if (!clientId) {
+          return null;
+        }
+        return new GoogleStrategy(
+          clientId,
           configService.get<string>('GOOGLE_CLIENT_SECRET') || '',
           configService.get<string>('GOOGLE_CALLBACK_URL') || 'http://localhost:3002/api/auth/google/callback',
-        ),
+        );
+      },
     },
     {
       provide: JwtStrategy,

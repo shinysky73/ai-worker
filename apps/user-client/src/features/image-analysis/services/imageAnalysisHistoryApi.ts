@@ -1,4 +1,14 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+
+function extractErrorMessage(error: unknown): string {
+  if (error instanceof AxiosError) {
+    return error.response?.data?.message || error.message;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return 'Unknown error occurred';
+}
 
 export interface ImageAnalysisHistoryItem {
   id: string;
@@ -18,28 +28,44 @@ export interface ImageAnalysisHistoryListResponse {
 
 export const imageAnalysisHistoryApi = {
   async fetchList(page = 1, limit = 20): Promise<ImageAnalysisHistoryListResponse> {
-    const response = await axios.get<ImageAnalysisHistoryListResponse>(
-      '/api/image-analysis/history',
-      { params: { page, limit } },
-    );
-    return response.data;
+    try {
+      const response = await axios.get<ImageAnalysisHistoryListResponse>(
+        '/api/image-analysis/history',
+        { params: { page, limit } },
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(extractErrorMessage(error));
+    }
   },
 
   async fetchDetail(id: string): Promise<ImageAnalysisHistoryItem> {
-    const response = await axios.get<ImageAnalysisHistoryItem>(
-      `/api/image-analysis/history/${id}`,
-    );
-    return response.data;
+    try {
+      const response = await axios.get<ImageAnalysisHistoryItem>(
+        `/api/image-analysis/history/${id}`,
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(extractErrorMessage(error));
+    }
   },
 
   async deleteItem(id: string): Promise<void> {
-    await axios.delete(`/api/image-analysis/history/${id}`);
+    try {
+      await axios.delete(`/api/image-analysis/history/${id}`);
+    } catch (error) {
+      throw new Error(extractErrorMessage(error));
+    }
   },
 
   async fetchImageBlobUrl(id: string): Promise<string> {
-    const response = await axios.get(`/api/image-analysis/history/${id}/image`, {
-      responseType: 'blob',
-    });
-    return URL.createObjectURL(response.data);
+    try {
+      const response = await axios.get(`/api/image-analysis/history/${id}/image`, {
+        responseType: 'blob',
+      });
+      return URL.createObjectURL(response.data);
+    } catch (error) {
+      throw new Error(extractErrorMessage(error));
+    }
   },
 };

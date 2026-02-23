@@ -38,7 +38,8 @@ export interface GenerateScriptOptions {
 
 // ── Constants ──
 
-const WORDS_PER_MINUTE = 150;
+const WORDS_PER_MINUTE = 150; // English fallback
+const KOREAN_CHARS_PER_MINUTE = 450; // Korean speech rate (syllable blocks/min)
 
 @Injectable()
 export class ScriptGeneratorService {
@@ -47,7 +48,10 @@ export class ScriptGeneratorService {
 
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
-    this.genAI = new GoogleGenerativeAI(apiKey || '');
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY environment variable is required');
+    }
+    this.genAI = new GoogleGenerativeAI(apiKey);
     this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   }
 
@@ -278,7 +282,19 @@ JSON 형식으로 응답해주세요:
   }
 
   calculateReadingTime(script: string): number {
-    const wordCount = script.trim().split(/\s+/).length;
+    const text = script.trim();
+    // Count Korean characters (Hangul syllable blocks)
+    const koreanChars = (text.match(/[\uAC00-\uD7AF]/g) || []).length;
+
+    if (koreanChars > text.length * 0.3) {
+      // Korean-dominant: use character-based calculation
+      const totalChars = text.replace(/\s/g, '').length;
+      const minutes = totalChars / KOREAN_CHARS_PER_MINUTE;
+      return Math.max(1, Math.round(minutes * 60));
+    }
+
+    // English/mixed: use word-based calculation
+    const wordCount = text.split(/\s+/).length;
     const minutes = wordCount / WORDS_PER_MINUTE;
     return Math.max(1, Math.round(minutes * 60));
   }

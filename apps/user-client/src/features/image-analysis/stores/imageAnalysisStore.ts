@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { DetailLevel, OutputLanguage, ImageAnalysisResult } from '../services/imageAnalysisApi';
+import type { DetailLevel, OutputLanguage } from '../services/imageAnalysisApi';
 
 export interface ImageAnalysisOptions {
   detailLevel: DetailLevel;
@@ -8,9 +8,7 @@ export interface ImageAnalysisOptions {
 
 interface ImageAnalysisState {
   options: ImageAnalysisOptions;
-  result: ImageAnalysisResult | null;
   setOptions: (options: Partial<ImageAnalysisOptions>) => void;
-  setResult: (result: ImageAnalysisResult | null) => void;
   reset: () => void;
 }
 
@@ -21,11 +19,9 @@ const DEFAULT_OPTIONS: ImageAnalysisOptions = {
 
 export const useImageAnalysisStore = create<ImageAnalysisState>((set) => ({
   options: { ...DEFAULT_OPTIONS },
-  result: null,
   setOptions: (partial) =>
     set((state) => ({
       options: { ...state.options, ...partial },
     })),
-  setResult: (result) => set({ result }),
-  reset: () => set({ options: { ...DEFAULT_OPTIONS }, result: null }),
+  reset: () => set({ options: { ...DEFAULT_OPTIONS } }),
 }));

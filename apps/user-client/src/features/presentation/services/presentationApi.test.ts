@@ -26,7 +26,7 @@ describe('presentationApi', () => {
         '/api/presentations/upload',
         expect.any(FormData),
         expect.objectContaining({
-          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 60_000,
         }),
       );
       expect(result).toEqual({ id: 'test-uuid', filename: 'test.pptx' });
@@ -44,6 +44,7 @@ describe('presentationApi', () => {
 
       expect(mockedAxios.get).toHaveBeenCalledWith(
         '/api/presentations/test-uuid/status',
+        { timeout: 10_000 },
       );
       expect(result).toEqual({
         id: 'test-uuid',
@@ -71,6 +72,7 @@ describe('presentationApi', () => {
 
       expect(mockedAxios.get).toHaveBeenCalledWith(
         '/api/presentations/test-uuid/result',
+        { timeout: 60_000 },
       );
       expect(result).toEqual(mockResponse.data);
     });
@@ -93,7 +95,7 @@ describe('presentationApi', () => {
         '/api/presentations/upload',
         expect.any(FormData),
         expect.objectContaining({
-          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 60_000,
           onUploadProgress: expect.any(Function),
         }),
       );

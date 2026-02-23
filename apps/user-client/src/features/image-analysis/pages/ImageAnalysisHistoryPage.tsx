@@ -25,10 +25,14 @@ export function ImageAnalysisHistoryPage() {
     return () => {
       if (prevBlobUrl.current) URL.revokeObjectURL(prevBlobUrl.current);
     };
-  }, [imageBlobUrl]);
+  }, []);
 
   const handleViewDetail = useCallback(async (id: string) => {
     setDetailLoading(true);
+    if (prevBlobUrl.current) {
+      URL.revokeObjectURL(prevBlobUrl.current);
+      prevBlobUrl.current = null;
+    }
     setImageBlobUrl(null);
     try {
       const [detail, blobUrl] = await Promise.all([

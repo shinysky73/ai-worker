@@ -66,14 +66,14 @@ export const presentationApi = {
         {
           timeout: REQUEST_TIMEOUT_MS,
           onUploadProgress: options?.onProgress
-            ? (progressEvent) => {
+            ? ((onProgress) => (progressEvent: { loaded: number; total?: number }) => {
                 if (progressEvent.total && progressEvent.total > 0) {
                   const percent = Math.round(
                     (progressEvent.loaded * 100) / progressEvent.total,
                   );
-                  options.onProgress!(percent);
+                  onProgress(percent);
                 }
-              }
+              })(options.onProgress)
             : undefined,
         },
       );

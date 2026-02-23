@@ -44,7 +44,6 @@ export interface UploadOptions {
 }
 
 const ALLOWED_MIMETYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const STORE_TTL_MS = 60 * 60 * 1000; // 1 hour
 const CLEANUP_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
@@ -113,13 +112,7 @@ export class ImageAnalysisService implements OnModuleDestroy {
 
     const id = randomUUID();
     const decodedFilename = Buffer.from(file.originalname, 'latin1').toString('utf8');
-    const ext = path.extname(file.originalname).toLowerCase();
-
-    if (!ALLOWED_EXTENSIONS.includes(ext)) {
-      throw new BadRequestException(
-        '지원하지 않는 파일 형식입니다. JPEG, PNG, WebP 파일만 업로드할 수 있습니다.',
-      );
-    }
+    const ext = path.extname(file.originalname).toLowerCase() || this.mimeToExt(file.mimetype);
 
     const filePath = path.join(UPLOAD_DIR, `${id}${ext}`);
     await fs.mkdir(UPLOAD_DIR, { recursive: true });
@@ -136,9 +129,20 @@ export class ImageAnalysisService implements OnModuleDestroy {
     }
 
     // Start async processing
-    this.processImage(id, filePath, decodedFilename);
+    this.processImage(id, filePath, decodedFilename).catch((err) => {
+      console.error(`[${id}] Unhandled error in processImage:`, err);
+    });
 
     return { id, filename: decodedFilename };
+  }
+
+  private mimeToExt(mimetype: string): string {
+    const map: Record<string, string> = {
+      'image/jpeg': '.jpg',
+      'image/png': '.png',
+      'image/webp': '.webp',
+    };
+    return map[mimetype] || '.bin';
   }
 
   private validateFileType(file: UploadedFile): void {
@@ -243,7 +247,13 @@ export class ImageAnalysisService implements OnModuleDestroy {
     }
   }
 
-  async getStatus(id: string): Promise<StatusResult> {
+  async getStatus(id: string, userId?: string): Promise<StatusResult> {
+    if (userId) {
+      const meta = this.metaStore.get(id);
+      if (meta && meta.data.userId !== userId) {
+        return { id, status: 'pending', progress: 0 };
+      }
+    }
     const entry = this.statusStore.get(id);
     if (!entry) {
       return { id, status: 'pending', progress: 0 };
@@ -251,7 +261,13 @@ export class ImageAnalysisService implements OnModuleDestroy {
     return entry.data;
   }
 
-  async getResult(id: string): Promise<AnalysisResultWithId | null> {
+  async getResult(id: string, userId?: string): Promise<AnalysisResultWithId | null> {
+    if (userId) {
+      const meta = this.metaStore.get(id);
+      if (meta && meta.data.userId !== userId) {
+        return null;
+      }
+    }
     const entry = this.resultStore.get(id);
     return entry?.data || null;
   }
@@ -295,6 +311,11 @@ export class ImageAnalysisService implements OnModuleDestroy {
       select: { imagePath: true },
     });
     if (!history?.imagePath) throw new NotFoundException('Image not found');
-    return history.imagePath;
+
+    const resolvedPath = path.resolve(history.imagePath);
+    if (!resolvedPath.startsWith(HISTORY_IMAGE_DIR)) {
+      throw new NotFoundException('Image not found');
+    }
+    return resolvedPath;
   }
 }

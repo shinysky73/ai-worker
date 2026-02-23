@@ -102,7 +102,7 @@ describe('PresentationService', () => {
         BadRequestException,
       );
       await expect(service.uploadFile(mockFile)).rejects.toThrow(
-        'Invalid file type. Only PPT and PPTX files are allowed.',
+        'Invalid file type. Only PPT, PPTX, and PDF files are allowed.',
       );
     });
 

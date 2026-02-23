@@ -47,8 +47,8 @@ export class ConverterService {
   }
 
   async convertPdfToImages(pdfPath: string): Promise<ConversionResult> {
-    const outputDir = pdfPath.replace('.pdf', '');
     const baseName = path.basename(pdfPath, '.pdf');
+    const outputDir = path.join(path.dirname(pdfPath), baseName);
 
     await fs.mkdir(outputDir, { recursive: true });
 

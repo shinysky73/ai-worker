@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
 
-const mockExecAsync = jest.fn();
+const mockExecFileAsync = jest.fn();
 
 jest.mock('child_process', () => ({
-  exec: jest.fn(),
+  execFile: jest.fn(),
 }));
 
 jest.mock('util', () => ({
   ...jest.requireActual('util'),
-  promisify: jest.fn(() => mockExecAsync),
+  promisify: jest.fn(() => mockExecFileAsync),
 }));
 
 const mockReaddir = jest.fn();
@@ -17,6 +17,7 @@ const mockReaddir = jest.fn();
 jest.mock('fs/promises', () => ({
   mkdir: jest.fn().mockResolvedValue(undefined),
   readdir: mockReaddir,
+  access: jest.fn().mockResolvedValue(undefined),
 }));
 
 import { ConverterService } from './converter.service';
@@ -26,7 +27,7 @@ describe('ConverterService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    mockExecAsync.mockResolvedValue({ stdout: '', stderr: '' });
+    mockExecFileAsync.mockResolvedValue({ stdout: '', stderr: '' });
     mockReaddir.mockResolvedValue([]);
 
     const module: TestingModule = await Test.createTestingModule({
@@ -46,11 +47,10 @@ describe('ConverterService', () => {
 
       const result = await service.convertToPdf(inputPath);
 
-      expect(mockExecAsync).toHaveBeenCalledWith(
-        expect.stringContaining('soffice'),
-      );
-      expect(mockExecAsync).toHaveBeenCalledWith(
-        expect.stringContaining('--convert-to pdf'),
+      expect(mockExecFileAsync).toHaveBeenCalledWith(
+        'soffice',
+        ['--headless', '--convert-to', 'pdf', '--outdir', '/uploads/presentations', inputPath],
+        expect.objectContaining({ timeout: expect.any(Number) }),
       );
       expect(result).toBe('/uploads/presentations/test-uuid.pdf');
     });
@@ -59,30 +59,28 @@ describe('ConverterService', () => {
   describe('convertPdfToImages', () => {
     it('shouldConvertPdfToImages: PDF를 슬라이드별 PNG 이미지로 변환', async () => {
       const pdfPath = '/uploads/presentations/test-uuid.pdf';
+      mockReaddir.mockResolvedValue(['test-uuid-1.png']);
 
       const result = await service.convertPdfToImages(pdfPath);
 
-      expect(mockExecAsync).toHaveBeenCalledWith(
-        expect.stringContaining('pdftoppm'),
-      );
-      expect(mockExecAsync).toHaveBeenCalledWith(
-        expect.stringContaining('-png'),
+      expect(mockExecFileAsync).toHaveBeenCalledWith(
+        'pdftoppm',
+        expect.arrayContaining(['-png', '-scale-to-x', '1920', '-scale-to-y', '1080']),
+        expect.objectContaining({ timeout: expect.any(Number) }),
       );
       expect(result.outputDir).toBe('/uploads/presentations/test-uuid');
     });
 
     it('shouldGenerateCorrectResolution: 1920x1080 해상도로 생성', async () => {
       const pdfPath = '/uploads/presentations/test-uuid.pdf';
+      mockReaddir.mockResolvedValue(['test-uuid-1.png']);
 
       await service.convertPdfToImages(pdfPath);
 
-      // 1920x1080 at 150 DPI means scale_x=1920/8.5*150=3388, scale_y=1080/11*150=1473
-      // We use -scale-to-x 1920 -scale-to-y 1080 for exact dimensions
-      expect(mockExecAsync).toHaveBeenCalledWith(
-        expect.stringContaining('-scale-to-x 1920'),
-      );
-      expect(mockExecAsync).toHaveBeenCalledWith(
-        expect.stringContaining('-scale-to-y 1080'),
+      expect(mockExecFileAsync).toHaveBeenCalledWith(
+        'pdftoppm',
+        expect.arrayContaining(['-scale-to-x', '1920', '-scale-to-y', '1080']),
+        expect.objectContaining({ timeout: expect.any(Number) }),
       );
     });
 
@@ -101,7 +99,7 @@ describe('ConverterService', () => {
 
     it('shouldRetryOnFailure: 변환 실패 시 최대 3회 재시도', async () => {
       const pdfPath = '/uploads/presentations/test-uuid.pdf';
-      mockExecAsync
+      mockExecFileAsync
         .mockRejectedValueOnce(new Error('Conversion failed'))
         .mockRejectedValueOnce(new Error('Conversion failed'))
         .mockResolvedValueOnce({ stdout: '', stderr: '' });
@@ -109,7 +107,7 @@ describe('ConverterService', () => {
 
       const result = await service.convertPdfToImages(pdfPath);
 
-      expect(mockExecAsync).toHaveBeenCalledTimes(3);
+      expect(mockExecFileAsync).toHaveBeenCalledTimes(3);
       expect(result.slideCount).toBe(1);
     });
 

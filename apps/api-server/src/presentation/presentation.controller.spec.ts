@@ -1,17 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
 import { PresentationController } from './presentation.controller';
 import { PresentationService, UploadOptions } from './presentation.service';
-import { ConverterService } from './converter.service';
-import { ScriptGeneratorService } from './script-generator.service';
 import { createMockPptxFile } from './__mocks__';
 
 describe('PresentationController', () => {
   let controller: PresentationController;
   let presentationService: jest.Mocked<PresentationService>;
-  let converterService: jest.Mocked<ConverterService>;
-  let scriptGeneratorService: jest.Mocked<ScriptGeneratorService>;
+
+  const mockReq = { user: { id: 'user-1' } } as any;
 
   beforeEach(async () => {
     const mockPresentationService = {
@@ -24,28 +21,15 @@ describe('PresentationController', () => {
       saveHistory: jest.fn(),
     };
 
-    const mockConverterService = {
-      convertToPdf: jest.fn(),
-      convertPdfToImages: jest.fn(),
-    };
-
-    const mockScriptGeneratorService = {
-      generateScript: jest.fn(),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PresentationController],
       providers: [
         { provide: PresentationService, useValue: mockPresentationService },
-        { provide: ConverterService, useValue: mockConverterService },
-        { provide: ScriptGeneratorService, useValue: mockScriptGeneratorService },
       ],
     }).compile();
 
     controller = module.get<PresentationController>(PresentationController);
     presentationService = module.get(PresentationService);
-    converterService = module.get(ConverterService);
-    scriptGeneratorService = module.get(ScriptGeneratorService);
   });
 
   it('should be defined', () => {
@@ -53,8 +37,6 @@ describe('PresentationController', () => {
   });
 
   describe('POST /api/presentations/upload', () => {
-    const mockReq = { user: { id: 'user-1' } } as any;
-
     it('shouldHandleFileUpload: POST /api/presentations/upload 엔드포인트', async () => {
       const mockFile = createMockPptxFile();
       presentationService.uploadFile.mockResolvedValue({
@@ -84,9 +66,9 @@ describe('PresentationController', () => {
         progress: 50,
       });
 
-      const result = await controller.getStatus('test-uuid');
+      const result = await controller.getStatus(mockReq, 'test-uuid');
 
-      expect(presentationService.getStatus).toHaveBeenCalledWith('test-uuid');
+      expect(presentationService.getStatus).toHaveBeenCalledWith('test-uuid', 'user-1');
       expect(result).toEqual({
         id: 'test-uuid',
         status: 'processing',
@@ -110,16 +92,16 @@ describe('PresentationController', () => {
       };
       presentationService.getResult.mockResolvedValue(mockResult);
 
-      const result = await controller.getResult('test-uuid');
+      const result = await controller.getResult(mockReq, 'test-uuid');
 
-      expect(presentationService.getResult).toHaveBeenCalledWith('test-uuid');
+      expect(presentationService.getResult).toHaveBeenCalledWith('test-uuid', 'user-1');
       expect(result).toEqual(mockResult);
     });
 
     it('shouldReturn404ForNotFound: 존재하지 않는 ID에 404 반환', async () => {
       presentationService.getResult.mockResolvedValue(null);
 
-      await expect(controller.getResult('non-existent-uuid')).rejects.toThrow(
+      await expect(controller.getResult(mockReq, 'non-existent-uuid')).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -131,7 +113,6 @@ describe('PresentationController', () => {
       expect(guards).toBeDefined();
       expect(guards.length).toBeGreaterThan(0);
 
-      // AuthGuard('jwt')가 적용되었는지 확인
       const guardInstance = new guards[0]();
       expect(guardInstance).toBeDefined();
     });
@@ -139,7 +120,6 @@ describe('PresentationController', () => {
 
   describe('GET /api/presentations/history', () => {
     it('shouldReturnHistoryList: 로그인 사용자의 히스토리 목록 반환', async () => {
-      const mockReq = { user: { id: 'user-1' } } as any;
       const mockResult = {
         items: [{ id: 'h-1', filename: 'a.pptx' }],
         total: 1,
@@ -153,11 +133,18 @@ describe('PresentationController', () => {
       expect(presentationService.getHistoryList).toHaveBeenCalledWith('user-1', 1, 20);
       expect(result).toEqual(mockResult);
     });
+
+    it('shouldClampLimit: limit 상한 100 적용', async () => {
+      presentationService.getHistoryList.mockResolvedValue({ items: [], total: 0, page: 1, limit: 100 } as any);
+
+      await controller.getHistoryList(mockReq, '1', '9999');
+
+      expect(presentationService.getHistoryList).toHaveBeenCalledWith('user-1', 1, 100);
+    });
   });
 
   describe('GET /api/presentations/history/:id', () => {
     it('shouldReturnHistoryDetail: 히스토리 상세 조회', async () => {
-      const mockReq = { user: { id: 'user-1' } } as any;
       const mockHistory = { id: 'h-1', userId: 'user-1', filename: 'a.pptx' };
       presentationService.getHistoryDetail.mockResolvedValue(mockHistory as any);
 
@@ -170,7 +157,6 @@ describe('PresentationController', () => {
 
   describe('DELETE /api/presentations/history/:id', () => {
     it('shouldDeleteHistory: 히스토리 삭제', async () => {
-      const mockReq = { user: { id: 'user-1' } } as any;
       presentationService.deleteHistory.mockResolvedValue(undefined);
 
       await controller.deleteHistory(mockReq, 'h-1');
@@ -180,12 +166,9 @@ describe('PresentationController', () => {
   });
 
   describe('POST /api/presentations/upload with options', () => {
-    const mockReq = { user: { id: 'user-1' } } as any;
-
     it('shouldValidateOptions: options 파라미터 검증 (tone, targetMinutes)', async () => {
       const mockFile = createMockPptxFile();
 
-      // Valid options should work
       presentationService.uploadFile.mockResolvedValue({
         id: 'test-uuid',
         filename: mockFile.originalname,

@@ -35,6 +35,7 @@ export function useImageAnalysis(): UseImageAnalysisReturn {
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pollAttemptRef = useRef(0);
   const isMountedRef = useRef(true);
+  const previewUrlRef = useRef<string | null>(null);
 
   const { options } = useImageAnalysisStore();
 
@@ -46,7 +47,10 @@ export function useImageAnalysis(): UseImageAnalysisReturn {
         clearTimeout(pollTimerRef.current);
         pollTimerRef.current = null;
       }
-      // Clean up object URL
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+        previewUrlRef.current = null;
+      }
     };
   }, []);
 
@@ -106,8 +110,12 @@ export function useImageAnalysis(): UseImageAnalysisReturn {
       setError(null);
       setResult(null);
 
-      // Create preview URL
+      // Create preview URL (revoke previous if exists)
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
       const previewUrl = URL.createObjectURL(file);
+      previewUrlRef.current = previewUrl;
       setImagePreviewUrl(previewUrl);
 
       try {
@@ -135,8 +143,9 @@ export function useImageAnalysis(): UseImageAnalysisReturn {
 
   const reset = useCallback(() => {
     stopPolling();
-    if (imagePreviewUrl) {
-      URL.revokeObjectURL(imagePreviewUrl);
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = null;
     }
     setState('idle');
     setProgress(0);
@@ -144,7 +153,7 @@ export function useImageAnalysis(): UseImageAnalysisReturn {
     setResult(null);
     setError(null);
     setImagePreviewUrl(null);
-  }, [stopPolling, imagePreviewUrl]);
+  }, [stopPolling]);
 
   return {
     state,

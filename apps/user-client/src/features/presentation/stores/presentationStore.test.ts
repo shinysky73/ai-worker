@@ -38,27 +38,6 @@ describe('presentationStore', () => {
     });
   });
 
-  describe('result storage', () => {
-    it('shouldStoreResult: 생성 결과 저장', () => {
-      const store = usePresentationStore.getState();
-      const result = {
-        id: 'test-uuid',
-        slides: [
-          { slideNumber: 1, script: 'First slide script', estimatedSeconds: 20 },
-          { slideNumber: 2, script: 'Second slide script', estimatedSeconds: 25 },
-        ],
-        totalEstimatedSeconds: 45,
-      };
-
-      store.setResult(result);
-
-      const state = usePresentationStore.getState();
-      expect(state.result).toEqual(result);
-      expect(state.result?.slides).toHaveLength(2);
-      expect(state.result?.totalEstimatedSeconds).toBe(45);
-    });
-  });
-
   describe('reset', () => {
     it('shouldResetState: 상태 초기화', () => {
       const store = usePresentationStore.getState();
@@ -66,17 +45,11 @@ describe('presentationStore', () => {
       // Set some state
       store.setUploadedFile({ id: 'test', filename: 'test.pptx' });
       store.setOptions({ tone: 'casual', targetMinutes: 10 });
-      store.setResult({
-        id: 'test',
-        slides: [{ slideNumber: 1, script: 'Script', estimatedSeconds: 20 }],
-        totalEstimatedSeconds: 20,
-      });
 
       // Verify state is set
       let state = usePresentationStore.getState();
       expect(state.uploadedFile).not.toBeNull();
       expect(state.options.tone).toBe('casual');
-      expect(state.result).not.toBeNull();
 
       // Reset
       store.reset();
@@ -85,7 +58,6 @@ describe('presentationStore', () => {
       state = usePresentationStore.getState();
       expect(state.uploadedFile).toBeNull();
       expect(state.options).toEqual({});
-      expect(state.result).toBeNull();
     });
   });
 });

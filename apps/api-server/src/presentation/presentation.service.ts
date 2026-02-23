@@ -152,7 +152,7 @@ export class PresentationService implements OnModuleDestroy {
   private validateFileType(file: UploadedFile): void {
     if (!ALLOWED_MIMETYPES.includes(file.mimetype)) {
       throw new BadRequestException(
-        'Invalid file type. Only PPT and PPTX files are allowed.',
+        'Invalid file type. Only PPT, PPTX, and PDF files are allowed.',
       );
     }
   }
@@ -201,7 +201,9 @@ export class PresentationService implements OnModuleDestroy {
     }
 
     // Start async processing
-    this.processPresentation(id, filePath);
+    this.processPresentation(id, filePath).catch((err) => {
+      console.error(`[${id}] Unhandled error in processPresentation:`, err);
+    });
   }
 
   // ────────────────────────────────────────────
@@ -312,6 +314,30 @@ export class PresentationService implements OnModuleDestroy {
         message: '처리 중 오류 발생',
         error: error instanceof Error ? error.message : 'Processing failed',
       });
+    } finally {
+      // Cleanup temp files
+      await this.cleanupTempFiles(filePath);
+    }
+  }
+
+  private async cleanupTempFiles(filePath: string): Promise<void> {
+    try {
+      // Delete uploaded file
+      await fs.unlink(filePath).catch(() => {});
+
+      // Delete converted PDF (if PPT was uploaded)
+      const ext = path.extname(filePath).toLowerCase();
+      if (ext !== '.pdf') {
+        const pdfPath = filePath.replace(ext, '.pdf');
+        await fs.unlink(pdfPath).catch(() => {});
+      }
+
+      // Delete images directory
+      const baseName = path.basename(filePath, path.extname(filePath));
+      const imagesDir = path.join(path.dirname(filePath), baseName);
+      await fs.rm(imagesDir, { recursive: true, force: true }).catch(() => {});
+    } catch {
+      // Best effort cleanup
     }
   }
 
@@ -396,19 +422,27 @@ export class PresentationService implements OnModuleDestroy {
     return scripts;
   }
 
-  async getStatus(id: string): Promise<StatusResult> {
+  async getStatus(id: string, userId?: string): Promise<StatusResult> {
+    if (userId) {
+      const meta = this.metaStore.get(id);
+      if (meta && meta.data.userId !== userId) {
+        return { id, status: 'pending', progress: 0 };
+      }
+    }
     const entry = this.statusStore.get(id);
     if (!entry) {
-      return {
-        id,
-        status: 'pending',
-        progress: 0,
-      };
+      return { id, status: 'pending', progress: 0 };
     }
     return entry.data;
   }
 
-  async getResult(id: string): Promise<PresentationResult | null> {
+  async getResult(id: string, userId?: string): Promise<PresentationResult | null> {
+    if (userId) {
+      const meta = this.metaStore.get(id);
+      if (meta && meta.data.userId !== userId) {
+        return null;
+      }
+    }
     const entry = this.resultStore.get(id);
     return entry?.data || null;
   }
@@ -428,7 +462,7 @@ export class PresentationService implements OnModuleDestroy {
         filename,
         tone: options.tone || null,
         targetMinutes: options.targetMinutes ? Number(options.targetMinutes) : null,
-        slides: slides as unknown as any,
+        slides: JSON.parse(JSON.stringify(slides)),
         totalEstimatedSeconds,
       },
     });
