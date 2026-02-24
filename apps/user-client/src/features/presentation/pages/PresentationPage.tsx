@@ -41,7 +41,7 @@ export function PresentationPage() {
       {/* Header */}
       <header className="relative text-center mb-8 pt-2">
         <Link
-          to="/history"
+          to="/presentation/history"
           className="absolute right-0 top-2 flex items-center gap-1.5 text-sm text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

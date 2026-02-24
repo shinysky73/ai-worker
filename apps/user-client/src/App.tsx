@@ -4,6 +4,7 @@ import { PresentationPage } from './features/presentation';
 import { LoginPage, AuthCallbackPage, setupInterceptors, useAuthStore } from './features/auth';
 import { Layout } from './components/Layout';
 import { HistoryPage } from './features/history/pages/HistoryPage';
+import { HomePage } from './pages/HomePage';
 import { ImageAnalysisPage, ImageAnalysisHistoryPage } from './features/image-analysis';
 import { ImageToExcelPage, ImageToExcelHistoryPage } from './features/image-to-excel';
 import { InterviewPage, InterviewHistoryPage } from './features/interview';
@@ -24,9 +25,9 @@ function AppContent() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route element={<Layout />}>
-        <Route path="/" element={<PresentationPage />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/presentation" element={<PresentationPage />} />
-        <Route path="/history" element={<HistoryPage />} />
+        <Route path="/presentation/history" element={<HistoryPage />} />
         <Route path="/image-analysis" element={<ImageAnalysisPage />} />
         <Route path="/image-analysis/history" element={<ImageAnalysisHistoryPage />} />
         <Route path="/image-to-excel" element={<ImageToExcelPage />} />

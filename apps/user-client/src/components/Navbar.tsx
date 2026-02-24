@@ -32,7 +32,7 @@ export function Navbar() {
             </NavLink>
 
             <div className="hidden sm:flex items-center gap-1">
-              <NavLink to="/" end className={navLinkClass}>
+              <NavLink to="/presentation" className={navLinkClass}>
                 스크립트 생성
               </NavLink>
               <NavLink to="/image-analysis" className={navLinkClass}>
@@ -121,7 +121,7 @@ export function Navbar() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="sm:hidden border-t border-gray-100 dark:border-gray-800 px-4 py-3 space-y-1 bg-white dark:bg-gray-900">
-          <NavLink to="/" end className={navLinkClass} onClick={() => setMenuOpen(false)}>
+          <NavLink to="/presentation" className={navLinkClass} onClick={() => setMenuOpen(false)}>
             스크립트 생성
           </NavLink>
           <NavLink to="/image-analysis" className={navLinkClass} onClick={() => setMenuOpen(false)}>
