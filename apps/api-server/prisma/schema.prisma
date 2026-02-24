@@ -19,6 +19,7 @@ model User {
   histories             PresentationHistory[]
   imageAnalysisHistories ImageAnalysisHistory[]
   imageToExcelHistories  ImageToExcelHistory[]
+  interviewHistories     InterviewHistory[]
 }
 
 model ImageAnalysisHistory {
@@ -43,6 +44,20 @@ model ImageToExcelHistory {
   imageCount    Int
   extractedData Json
   excelFilename String
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model InterviewHistory {
+  id            String   @id @default(uuid())
+  userId        String
+  jdSummary     String
+  jobCategory   String
+  questionsData Json
+  questionCount Int
   createdAt     DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

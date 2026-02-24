@@ -6,6 +6,7 @@ import { Layout } from './components/Layout';
 import { HistoryPage } from './features/history/pages/HistoryPage';
 import { ImageAnalysisPage, ImageAnalysisHistoryPage } from './features/image-analysis';
 import { ImageToExcelPage, ImageToExcelHistoryPage } from './features/image-to-excel';
+import { InterviewPage, InterviewHistoryPage } from './features/interview';
 
 function AppContent() {
   const { setToken } = useAuthStore();
@@ -30,6 +31,8 @@ function AppContent() {
         <Route path="/image-analysis/history" element={<ImageAnalysisHistoryPage />} />
         <Route path="/image-to-excel" element={<ImageToExcelPage />} />
         <Route path="/image-to-excel/history" element={<ImageToExcelHistoryPage />} />
+        <Route path="/interview" element={<InterviewPage />} />
+        <Route path="/interview/history" element={<InterviewHistoryPage />} />
       </Route>
     </Routes>
   );

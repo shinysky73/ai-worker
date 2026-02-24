@@ -162,6 +162,6 @@ docs/
 
 ## Last Work Position
 
-- **Feature**: image-to-excel (영수증/명함 → 엑셀 변환) + 프로젝트 가이드 문서
-- **Status**: PRD + TDD Plan 작성 완료. `feat/image-to-excel` 브랜치. Phase 1(Spike)부터 구현 시작 예정.
+- **Feature**: interview-question-generator (JD 기반 면접 질문 생성기)
+- **Status**: 8 Phase 전체 구현 완료 (Backend 34 tests + Frontend 17 tests). 커밋/PR 전 상태.
 - **Handoff**: 상세 인수인계 문서는 `HANDOFF.md` 참고. 새 세션 시작 시 반드시 읽을 것.

@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { PresentationModule } from './presentation/presentation.module';
 import { ImageAnalysisModule } from './image-analysis/image-analysis.module';
 import { ImageToExcelModule } from './image-to-excel/image-to-excel.module';
+import { InterviewModule } from './interview/interview.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ImageToExcelModule } from './image-to-excel/image-to-excel.module';
     PresentationModule,
     ImageAnalysisModule,
     ImageToExcelModule,
+    InterviewModule,
   ],
   controllers: [AppController],
   providers: [AppService],

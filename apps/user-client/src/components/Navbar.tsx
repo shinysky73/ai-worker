@@ -41,6 +41,9 @@ export function Navbar() {
               <NavLink to="/image-to-excel" className={navLinkClass}>
                 엑셀 변환
               </NavLink>
+              <NavLink to="/interview" className={navLinkClass}>
+                면접 질문
+              </NavLink>
             </div>
           </div>
 
@@ -126,6 +129,9 @@ export function Navbar() {
           </NavLink>
           <NavLink to="/image-to-excel" className={navLinkClass} onClick={() => setMenuOpen(false)}>
             엑셀 변환
+          </NavLink>
+          <NavLink to="/interview" className={navLinkClass} onClick={() => setMenuOpen(false)}>
+            면접 질문
           </NavLink>
         </div>
       )}

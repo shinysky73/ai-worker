@@ -1,65 +1,89 @@
-# Image-to-Excel 기능 준비 - Handoff Document
+# JD 기반 면접 질문 생성기 - Handoff Document
 
 ## Goal
-영수증/명함 사진을 여러 장 업로드하면 AI가 정보를 추출하여 정리된 엑셀(.xlsx) 파일로 다운로드할 수 있는 기능을 구현한다.
+채용 공고(JD) 텍스트를 입력하면 AI(Gemini 2.5 Flash)가 직무별 역량을 분석하여 구조화된 면접 질문·평가 기준을 자동 생성하고, 엑셀 다운로드 및 히스토리 관리가 가능한 기능. PRD → TDD Plan → 8 Phase 구현 완료. 아직 커밋/PR 전 상태.
 
 ## Current Progress
 
 ### What's Been Done
 
-**프로젝트 가이드 문서 작성**
-- `docs/GUIDE.md` — 비개발자용 프로젝트 이해 + 실습 가이드 (한국어, 14개 섹션)
-- `docs/GUIDE.html` — HTML 버전 (사이드바 네비게이션, 시각적 스타일링)
-- Gemini API 키는 회사 발급 키 사용하도록 안내
-- git clone URL: `https://github.com/shinysky73/ai-worker.git`
+**Backend (34 new tests, 4 test suites)**
+- `QuestionGeneratorService` — Gemini AI로 JD 분석, 역량 추출(3~7개), 질문 생성(10~20개), JSON 파싱 + 코드블록 추출, 3회 재시도, 역량 최소 3개 검증
+- `InterviewService` — 비동기 처리 오케스트레이션: JD 제출(HTML 스트립, 50~10,000자 검증), 상태 관리(인메모리 Map + TTL), 히스토리 자동 저장
+- `InterviewExcelGeneratorService` — 면접 질문 결과 → .xlsx 변환 (역량, 질문, 평가의도, 키워드, 평가기준 상/중/하)
+- `InterviewController` — REST API: `POST generate`, `GET :id/status`, `GET :id/download`, `GET/DELETE history`, `GET history/:id/download`
+- `InterviewModule` — `app.module.ts`에 등록 완료
+- `InterviewHistory` Prisma 모델 — schema.prisma 추가 + `prisma generate` + `prisma db push` 완료
+- `PrismaService` — `interviewHistory` getter 추가
 
-**PRD 작성 완료**
-- `docs/06-image-to-excel/prd.md` — 6개 FR, AC, Edge Cases 정의
-  - FR-1: 다중 이미지 업로드 (최대 20장)
-  - FR-2: AI 기반 구조화 데이터 추출 (영수증/명함 필드별)
-  - FR-3: 엑셀 파일 생성 및 다운로드
-  - FR-4: 다중 이미지 처리 상태 추적 (개별 + 전체)
-  - FR-5: 히스토리 관리
-  - FR-6: 프론트엔드 UI
+**Frontend (17 new tests, 3 test suites)**
+- `interviewApi.ts` — submitJd, pollStatus, downloadExcel (4 tests)
+- `interviewHistoryApi.ts` — fetchList, fetchDetail, deleteItem, downloadExcel (4 tests)
+- `useInterviewStore` — Zustand store: jobCategory 옵션 관리 (3 tests)
+- `useInterview` hook — submit → polling(2초 간격) → result 상태 머신, 클립보드 복사, 엑셀 다운로드 (6 tests)
+- `useInterviewHistory` hook — 목록/삭제/다운로드
+- `InterviewPage` — 직무 유형 선택(6개 카테고리 그리드) + JD 텍스트 입력(글자 수 카운터) + 처리 상태 + 결과 아코디언
+- `InterviewHistoryPage` — 목록/상세/페이지네이션/재다운로드/삭제 확인
+- Components: `JobCategorySelector`, `JdTextInput`, `InterviewResult`(아코디언 + 평가기준 카드), `InterviewProcessingStatus`
+- `App.tsx` 라우트 추가: `/interview`, `/interview/history`
+- `Navbar.tsx` — "면접 질문" 링크 (데스크톱 + 모바일)
 
-**TDD Plan 작성 완료**
-- `docs/06-image-to-excel/plan.md` — 11 Phases
-  - Backend TDD: Phase 1(Spike) ~ Phase 6(Controller)
-  - Frontend TDD: Phase 7(API client) ~ Phase 8(Hook)
-  - UI/UX Non-TDD: Phase 9(메인 페이지) ~ Phase 11(라우팅)
-
-**브랜치 생성**
-- `feat/image-to-excel` 브랜치에서 작업 중
+**Docs**
+- `docs/07-interview-question-generator/prd.md` — 5개 FR, AC, Edge Cases
+- `docs/07-interview-question-generator/plan.md` — 8 Phases 전체 완료, 51개 테스트 기록
 
 ### What Worked
-- 기존 `image-analysis` 모듈을 패턴 참고 대상으로 삼아 PRD/Plan 설계 → 일관된 아키텍처 유지
-- Explore agent로 기존 코드 패턴을 한 번에 파악 → PRD의 Affected Code, Plan의 위험 요소 정확히 식별
+- 기존 `image-to-excel` 모듈 패턴을 그대로 참조 → 일관된 아키텍처 유지 (인메모리 상태 관리, 비동기 fire-and-forget, TTL 클린업)
+- `data-extractor.service.ts`의 Gemini API 모킹 패턴을 `question-generator.service.spec.ts`에 재활용
+- TDD Phase 순서 (Types → AI Service → Orchestration → Excel → History → Frontend API → Hook → UI) — 의존성 방향대로 빌드업
+- 프론트엔드 보라색(violet) 테마로 기존 기능들(indigo/emerald)과 시각적으로 차별화
+
+### What Didn't Work
+- `JSX.Element` 타입이 React 19에서 네임스페이스 문제 발생 → `ReactNode`로 교체
+- 테스트에서 JD 텍스트가 50자 미만이어서 실패 → 충분히 긴 한국어 텍스트로 교체
 
 ## Key Decisions
-- **엑셀 라이브러리**: Phase 1 Spike에서 `exceljs` 우선 검증 후 결정. 대안은 `xlsx`(SheetJS)
-- **백엔드 모듈 분리**: 기존 `image-analysis`와 별도 모듈 (`image-to-excel/`)로 생성. AI 호출 코드는 독자적 서비스 (`data-extractor.service.ts`)
-- **상태 관리**: 기존 image-analysis와 동일한 인메모리 TTL 패턴. 개별 이미지 상태 배열 추가
-- **다중 업로드**: `FilesInterceptor` (Multer) 사용, 개별 10MB + 전체 100MB 제한
-- **retry.ts**: 기존 `presentation/utils/retry.ts` 공용 재사용
+- **인메모리 상태 관리** — 기존 image-to-excel과 동일한 TTL 기반 Map 패턴 (Redis 미도입)
+- **직무 유형 6개 고정** — 개발, 디자인, 기획/PM, 마케팅, 영업, 일반/기타 (프론트 + 백엔드 양쪽 검증)
+- **3회 재시도 전략** — JSON 파싱 실패 또는 역량 3개 미만 시 Gemini API 재호출
+- **역량별 아코디언 UI** — 드롭다운이 아닌 버튼 그리드로 직무 유형 선택 (한눈에 보기)
+- **히스토리에 전체 questionsData JSON 저장** — 재조회 시 동일한 결과 카드 형태로 표시 가능
 
 ## Files Changed
-- `docs/GUIDE.md` — 비개발자용 프로젝트 가이드 (신규)
-- `docs/GUIDE.html` — HTML 버전 가이드 (신규)
-- `docs/06-image-to-excel/prd.md` — PRD (신규)
-- `docs/06-image-to-excel/plan.md` — TDD Plan (신규)
+
+### Backend (신규)
+- `apps/api-server/src/interview/types.ts` — 공통 타입 (JobCategory, Competency, InterviewQuestion, InterviewQuestionResult)
+- `apps/api-server/src/interview/question-generator.service.ts` + `.spec.ts` — AI 질문 생성 (5 tests)
+- `apps/api-server/src/interview/interview.service.ts` + `.spec.ts` — 오케스트레이션 + 히스토리 (22 tests)
+- `apps/api-server/src/interview/interview.controller.ts` + `.spec.ts` — REST API (3 tests)
+- `apps/api-server/src/interview/excel-generator.service.ts` + `.spec.ts` — 엑셀 생성 (3 tests)
+- `apps/api-server/src/interview/interview.module.ts` — NestJS 모듈
+
+### Backend (수정)
+- `apps/api-server/prisma/schema.prisma` — InterviewHistory 모델 + User relation 추가
+- `apps/api-server/src/prisma/prisma.service.ts` — interviewHistory getter 추가
+- `apps/api-server/src/app.module.ts` — InterviewModule import
+
+### Frontend (신규)
+- `apps/user-client/src/features/interview/` — 전체 feature 디렉토리 (services, stores, hooks, pages, components, index.ts)
+
+### Frontend (수정)
+- `apps/user-client/src/App.tsx` — 라우트 추가
+- `apps/user-client/src/components/Navbar.tsx` — 네비게이션 링크 추가
 
 ## Test Status
-- Backend: 103 tests passing (14 suites, 0 failures)
-- Frontend: 51 tests passing (11 suites, 0 failures)
-- 총 154개 테스트 all green. 기존 코드 변경 없음.
+- Backend: 180 tests passing (22 suites, 0 failures) — 기존 146 + 신규 34
+- Frontend: 82 tests passing (18 suites, 0 failures) — 기존 65 + 신규 17
+- 총 262개 테스트 all green. 기존 테스트 회귀 없음.
+- 양쪽 빌드 정상 (`pnpm -F @ai-worker/api-server build`, `pnpm -F @ai-worker/user-client build`)
 
 ## Next Steps
-1. `/go-phase` Phase 1 — exceljs Spike (라이브러리 설치 + 기본 동작 검증)
-2. `/go-phase` Phase 2 — 엑셀 생성 서비스 TDD
-3. `/go-phase` Phase 3 — AI 데이터 추출 서비스 TDD
-4. Phase 4~11 순차 진행
+1. **커밋 + PR 생성** — `feat/interview-question-generator` 브랜치 생성 → `[BEHAVIORAL]` 커밋 → PR
+2. **E2E 수동 검증** — 실제 JD 텍스트로 면접 질문 생성 → 결과 확인 → 엑셀 다운로드 → 히스토리 조회/삭제
+3. `docs/GUIDE.md`, `docs/GUIDE.html` — 아직 커밋되지 않은 가이드 문서 정리/커밋
+4. 새 기능 기획 — `docs/01-idea/idea.md`에서 다음 기능 선정
 
 ## Resume Command
 ```
-HANDOFF.md를 읽고 현재 작업 상태를 파악해줘. feat/image-to-excel 브랜치에서 영수증/명함→엑셀 변환 기능을 구현 중이야. PRD(docs/06-image-to-excel/prd.md)와 Plan(docs/06-image-to-excel/plan.md) 작성 완료. /go-phase Phase 1(exceljs Spike)부터 시작하자.
+HANDOFF.md를 읽고 현재 작업 상태를 파악해줘. interview-question-generator 기능 8 Phase 구현 완료, 아직 커밋/PR 전. 다음 단계(커밋/PR 또는 E2E 검증)를 진행하자.
 ```
