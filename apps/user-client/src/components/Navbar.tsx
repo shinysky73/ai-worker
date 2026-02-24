@@ -38,6 +38,9 @@ export function Navbar() {
               <NavLink to="/image-analysis" className={navLinkClass}>
                 이미지 분석
               </NavLink>
+              <NavLink to="/image-to-excel" className={navLinkClass}>
+                엑셀 변환
+              </NavLink>
             </div>
           </div>
 
@@ -120,6 +123,9 @@ export function Navbar() {
           </NavLink>
           <NavLink to="/image-analysis" className={navLinkClass} onClick={() => setMenuOpen(false)}>
             이미지 분석
+          </NavLink>
+          <NavLink to="/image-to-excel" className={navLinkClass} onClick={() => setMenuOpen(false)}>
+            엑셀 변환
           </NavLink>
         </div>
       )}

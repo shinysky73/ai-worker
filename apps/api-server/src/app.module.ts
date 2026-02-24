@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { PresentationModule } from './presentation/presentation.module';
 import { ImageAnalysisModule } from './image-analysis/image-analysis.module';
+import { ImageToExcelModule } from './image-to-excel/image-to-excel.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ImageAnalysisModule } from './image-analysis/image-analysis.module';
     AuthModule,
     PresentationModule,
     ImageAnalysisModule,
+    ImageToExcelModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -26,6 +26,10 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return this.client.imageAnalysisHistory;
   }
 
+  get imageToExcelHistory() {
+    return this.client.imageToExcelHistory;
+  }
+
   get $transaction() {
     return this.client.$transaction.bind(this.client);
   }

@@ -18,6 +18,7 @@ model User {
 
   histories             PresentationHistory[]
   imageAnalysisHistories ImageAnalysisHistory[]
+  imageToExcelHistories  ImageToExcelHistory[]
 }
 
 model ImageAnalysisHistory {
@@ -29,6 +30,20 @@ model ImageAnalysisHistory {
   insights    Json
   imagePath   String?
   createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model ImageToExcelHistory {
+  id            String   @id @default(uuid())
+  userId        String
+  type          String
+  imageCount    Int
+  extractedData Json
+  excelFilename String
+  createdAt     DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

@@ -5,6 +5,7 @@ import { LoginPage, AuthCallbackPage, setupInterceptors, useAuthStore } from './
 import { Layout } from './components/Layout';
 import { HistoryPage } from './features/history/pages/HistoryPage';
 import { ImageAnalysisPage, ImageAnalysisHistoryPage } from './features/image-analysis';
+import { ImageToExcelPage, ImageToExcelHistoryPage } from './features/image-to-excel';
 
 function AppContent() {
   const { setToken } = useAuthStore();
@@ -27,6 +28,8 @@ function AppContent() {
         <Route path="/history" element={<HistoryPage />} />
         <Route path="/image-analysis" element={<ImageAnalysisPage />} />
         <Route path="/image-analysis/history" element={<ImageAnalysisHistoryPage />} />
+        <Route path="/image-to-excel" element={<ImageToExcelPage />} />
+        <Route path="/image-to-excel/history" element={<ImageToExcelHistoryPage />} />
       </Route>
     </Routes>
   );

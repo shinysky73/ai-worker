@@ -162,6 +162,6 @@ docs/
 
 ## Last Work Position
 
-- **Feature**: image-analysis & presentation 코드 리뷰 + 보안/품질 수정
-- **Status**: 코드 리뷰 지적사항 전부 수정 완료. 전체 테스트 154개 pass, pre-existing failures 0개.
+- **Feature**: image-to-excel (영수증/명함 → 엑셀 변환) + 프로젝트 가이드 문서
+- **Status**: PRD + TDD Plan 작성 완료. `feat/image-to-excel` 브랜치. Phase 1(Spike)부터 구현 시작 예정.
 - **Handoff**: 상세 인수인계 문서는 `HANDOFF.md` 참고. 새 세션 시작 시 반드시 읽을 것.
