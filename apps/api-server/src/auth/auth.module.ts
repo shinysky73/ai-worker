@@ -4,7 +4,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { GoogleStrategy } from './google.strategy';
 import { JwtStrategy } from './jwt.strategy';
 
 @Module({
@@ -25,21 +24,6 @@ import { JwtStrategy } from './jwt.strategy';
   controllers: [AuthController],
   providers: [
     AuthService,
-    {
-      provide: GoogleStrategy,
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const clientId = configService.get<string>('GOOGLE_CLIENT_ID');
-        if (!clientId) {
-          return null;
-        }
-        return new GoogleStrategy(
-          clientId,
-          configService.get<string>('GOOGLE_CLIENT_SECRET') || '',
-          configService.get<string>('GOOGLE_CALLBACK_URL') || 'http://localhost:3002/api/auth/google/callback',
-        );
-      },
-    },
     {
       provide: JwtStrategy,
       inject: [ConfigService],

@@ -1,13 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
-
-export interface GoogleProfile {
-  googleId: string;
-  email: string;
-  name: string;
-  picture?: string;
-}
 
 export interface JwtPayload {
   sub: string;
@@ -27,22 +21,35 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateGoogleUser(profile: GoogleProfile): Promise<AuthResult> {
-    const user = await this.prisma.user.upsert({
-      where: { googleId: profile.googleId },
-      update: {
-        email: profile.email,
-        name: profile.name,
-        picture: profile.picture,
-      },
-      create: {
-        googleId: profile.googleId,
-        email: profile.email,
-        name: profile.name,
-        picture: profile.picture,
-      },
+  async register(email: string, password: string, name: string): Promise<AuthResult> {
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      throw new ConflictException('이미 등록된 이메일입니다.');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await this.prisma.user.create({
+      data: { email, password: hashedPassword, name },
     });
 
+    return this.issueToken(user);
+  }
+
+  async login(email: string, password: string): Promise<AuthResult> {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      throw new UnauthorizedException('이메일 또는 비밀번호가 올바르지 않습니다.');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('이메일 또는 비밀번호가 올바르지 않습니다.');
+    }
+
+    return this.issueToken(user);
+  }
+
+  private issueToken(user: { id: string; email: string; name: string; picture: string | null }): AuthResult {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
@@ -50,8 +57,6 @@ export class AuthService {
       picture: user.picture ?? undefined,
     };
 
-    const accessToken = this.jwtService.sign(payload);
-
-    return { accessToken };
+    return { accessToken: this.jwtService.sign(payload) };
   }
 }

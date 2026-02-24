@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { PresentationPage } from './features/presentation';
-import { LoginPage, AuthCallbackPage, setupInterceptors, useAuthStore } from './features/auth';
+import { LoginPage, setupInterceptors, useAuthStore } from './features/auth';
 import { Layout } from './components/Layout';
 import { HistoryPage } from './features/history/pages/HistoryPage';
 import { HomePage } from './pages/HomePage';
@@ -23,7 +23,6 @@ function AppContent() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/presentation" element={<PresentationPage />} />

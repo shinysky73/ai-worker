@@ -17,9 +17,8 @@ describe('AuthController', () => {
         {
           provide: AuthService,
           useValue: {
-            validateGoogleUser: jest.fn().mockResolvedValue({
-              accessToken: 'mock-jwt-token',
-            }),
+            register: jest.fn().mockResolvedValue({ accessToken: 'mock-jwt-token' }),
+            login: jest.fn().mockResolvedValue({ accessToken: 'mock-jwt-token' }),
           },
         },
       ],
@@ -29,38 +28,25 @@ describe('AuthController', () => {
     authService = module.get<AuthService>(AuthService);
   });
 
-  describe('googleCallback', () => {
-    it('should redirect to frontend with JWT token on success', async () => {
-      const mockReq = {
-        user: {
-          googleId: 'google-123',
-          email: 'test@example.com',
-          name: 'Test User',
-          picture: 'https://example.com/photo.jpg',
-        },
-      };
+  describe('register', () => {
+    it('should call authService.register and return accessToken', async () => {
+      const dto = { email: 'test@example.com', password: 'password123', name: 'Test User' };
 
-      const mockRes = {
-        redirect: jest.fn(),
-      };
+      const result = await controller.register(dto);
 
-      await controller.googleCallback(mockReq as any, mockRes as any);
-
-      expect(authService.validateGoogleUser).toHaveBeenCalledWith(mockReq.user);
-      expect(mockRes.redirect).toHaveBeenCalledWith(
-        expect.stringContaining('token=mock-jwt-token'),
-      );
+      expect(authService.register).toHaveBeenCalledWith('test@example.com', 'password123', 'Test User');
+      expect(result).toEqual({ accessToken: 'mock-jwt-token' });
     });
+  });
 
-    it('should redirect to login with error when user is not in request', async () => {
-      const mockReq = { user: null };
-      const mockRes = { redirect: jest.fn() };
+  describe('login', () => {
+    it('should call authService.login and return accessToken', async () => {
+      const dto = { email: 'test@example.com', password: 'password123' };
 
-      await controller.googleCallback(mockReq as any, mockRes as any);
+      const result = await controller.login(dto);
 
-      expect(mockRes.redirect).toHaveBeenCalledWith(
-        expect.stringContaining('/login?error='),
-      );
+      expect(authService.login).toHaveBeenCalledWith('test@example.com', 'password123');
+      expect(result).toEqual({ accessToken: 'mock-jwt-token' });
     });
   });
 });

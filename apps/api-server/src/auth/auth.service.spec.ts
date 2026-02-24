@@ -1,5 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -7,17 +9,21 @@ jest.mock('../../generated/prisma/client', () => ({
   PrismaClient: jest.fn().mockImplementation(() => ({})),
 }));
 
+jest.mock('bcryptjs', () => ({
+  hash: jest.fn().mockResolvedValue('hashed-password'),
+  compare: jest.fn(),
+}));
+
 describe('AuthService', () => {
   let service: AuthService;
   let prisma: PrismaService;
-  let jwtService: JwtService;
 
   const mockUser = {
     id: 'user-uuid-1',
     email: 'test@example.com',
     name: 'Test User',
-    picture: 'https://example.com/photo.jpg',
-    googleId: 'google-123',
+    picture: null,
+    password: 'hashed-password',
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -30,7 +36,8 @@ describe('AuthService', () => {
           provide: PrismaService,
           useValue: {
             user: {
-              upsert: jest.fn().mockResolvedValue(mockUser),
+              findUnique: jest.fn(),
+              create: jest.fn(),
             },
           },
         },
@@ -45,46 +52,53 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     prisma = module.get<PrismaService>(PrismaService);
-    jwtService = module.get<JwtService>(JwtService);
   });
 
-  describe('validateGoogleUser', () => {
-    it('should upsert user in DB and return JWT token', async () => {
-      const googleProfile = {
-        googleId: 'google-123',
-        email: 'test@example.com',
-        name: 'Test User',
-        picture: 'https://example.com/photo.jpg',
-      };
+  describe('register', () => {
+    it('should create user and return JWT token', async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      (prisma.user.create as jest.Mock).mockResolvedValue(mockUser);
 
-      const result = await service.validateGoogleUser(googleProfile);
+      const result = await service.register('test@example.com', 'password123', 'Test User');
 
-      expect(prisma.user.upsert).toHaveBeenCalledWith({
-        where: { googleId: 'google-123' },
-        update: { email: 'test@example.com', name: 'Test User', picture: 'https://example.com/photo.jpg' },
-        create: { googleId: 'google-123', email: 'test@example.com', name: 'Test User', picture: 'https://example.com/photo.jpg' },
+      expect(prisma.user.create).toHaveBeenCalledWith({
+        data: { email: 'test@example.com', password: 'hashed-password', name: 'Test User' },
       });
-
-      expect(result).toHaveProperty('accessToken');
-      expect(result.accessToken).toBe('mock-jwt-token');
+      expect(bcrypt.hash).toHaveBeenCalledWith('password123', 10);
+      expect(result).toEqual({ accessToken: 'mock-jwt-token' });
     });
 
-    it('should include user id, email, name, picture in JWT payload', async () => {
-      const googleProfile = {
-        googleId: 'google-123',
-        email: 'test@example.com',
-        name: 'Test User',
-        picture: 'https://example.com/photo.jpg',
-      };
+    it('should throw ConflictException for duplicate email', async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
-      await service.validateGoogleUser(googleProfile);
+      await expect(service.register('test@example.com', 'password123', 'Test User'))
+        .rejects.toThrow(ConflictException);
+    });
+  });
 
-      expect(jwtService.sign).toHaveBeenCalledWith({
-        sub: 'user-uuid-1',
-        email: 'test@example.com',
-        name: 'Test User',
-        picture: 'https://example.com/photo.jpg',
-      });
+  describe('login', () => {
+    it('should return JWT token for valid credentials', async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      const result = await service.login('test@example.com', 'password123');
+
+      expect(result).toEqual({ accessToken: 'mock-jwt-token' });
+    });
+
+    it('should throw UnauthorizedException for non-existent user', async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+
+      await expect(service.login('nobody@example.com', 'password123'))
+        .rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw UnauthorizedException for wrong password', async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+      await expect(service.login('test@example.com', 'wrongpassword'))
+        .rejects.toThrow(UnauthorizedException);
     });
   });
 });

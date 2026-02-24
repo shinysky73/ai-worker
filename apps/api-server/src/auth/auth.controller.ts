@@ -1,35 +1,28 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import type { Request, Response } from 'express';
-import { AuthService, GoogleProfile } from './auth.service';
+import { Body, Controller, Post } from '@nestjs/common';
+import { AuthService } from './auth.service';
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5175';
+class RegisterDto {
+  email: string;
+  password: string;
+  name: string;
+}
+
+class LoginDto {
+  email: string;
+  password: string;
+}
 
 @Controller('api/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get('google')
-  @UseGuards(AuthGuard('google'))
-  googleLogin() {
-    // Passport redirects to Google
+  @Post('register')
+  async register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto.email, dto.password, dto.name);
   }
 
-  @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleCallback(@Req() req: Request, @Res() res: Response) {
-    const profile = req.user as GoogleProfile | null;
-
-    if (!profile) {
-      res.redirect(`${FRONTEND_URL}/login?error=auth_failed`);
-      return;
-    }
-
-    try {
-      const { accessToken } = await this.authService.validateGoogleUser(profile);
-      res.redirect(`${FRONTEND_URL}/auth/callback?token=${accessToken}`);
-    } catch {
-      res.redirect(`${FRONTEND_URL}/login?error=auth_failed`);
-    }
+  @Post('login')
+  async login(@Body() dto: LoginDto) {
+    return this.authService.login(dto.email, dto.password);
   }
 }
