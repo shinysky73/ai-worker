@@ -10,7 +10,10 @@ DROP INDEX "User_googleId_key";
 
 -- AlterTable
 ALTER TABLE "User" DROP COLUMN "googleId",
-ADD COLUMN     "password" TEXT NOT NULL;
+ADD COLUMN     "password" TEXT NOT NULL DEFAULT '';
+
+-- Remove default after backfill
+ALTER TABLE "User" ALTER COLUMN "password" DROP DEFAULT;
 
 -- CreateTable
 CREATE TABLE "ImageAnalysisHistory" (
