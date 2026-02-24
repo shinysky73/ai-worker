@@ -135,6 +135,15 @@ describe('InterviewService', () => {
       expect(result.id).toMatch(/^[0-9a-f]{8}-/i);
     });
 
+    it('shouldRejectNonStringJd: jdText가 문자열이 아닌 경우 400 에러', async () => {
+      await expect(
+        service.submitJd(123 as any, '개발', 'user-1'),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.submitJd(null as any, '개발', 'user-1'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
     it('shouldRejectShortJd: 50자 미만 JD 제출 시 400 에러', async () => {
       await expect(
         service.submitJd('짧은 JD', '개발', 'user-1'),

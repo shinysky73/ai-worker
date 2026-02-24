@@ -35,30 +35,6 @@ export class InterviewController {
     return this.interviewService.submitJd(body.jdText, jobCategory, req.user.id);
   }
 
-  @Get(':id/status')
-  async getStatus(
-    @Req() req: Request & { user: AuthUser },
-    @Param('id') id: string,
-  ): Promise<StatusResult> {
-    return this.interviewService.getStatus(id, req.user.id);
-  }
-
-  @Get(':id/download')
-  async downloadExcel(
-    @Req() req: Request & { user: AuthUser },
-    @Param('id') id: string,
-    @Res() res: Response,
-  ): Promise<void> {
-    const result = await this.interviewService.getExcelBuffer(id, req.user.id);
-    if (!result) {
-      throw new NotFoundException('Excel file not found');
-    }
-
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(result.filename)}"`);
-    res.send(result.buffer);
-  }
-
   @Get('history')
   async getHistoryList(
     @Req() req: Request & { user: AuthUser },
@@ -93,6 +69,30 @@ export class InterviewController {
     @Res() res: Response,
   ): Promise<void> {
     const result = await this.interviewService.regenerateExcel(req.user.id, id);
+    if (!result) {
+      throw new NotFoundException('Excel file not found');
+    }
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(result.filename)}"`);
+    res.send(result.buffer);
+  }
+
+  @Get(':id/status')
+  async getStatus(
+    @Req() req: Request & { user: AuthUser },
+    @Param('id') id: string,
+  ): Promise<StatusResult> {
+    return this.interviewService.getStatus(id, req.user.id);
+  }
+
+  @Get(':id/download')
+  async downloadExcel(
+    @Req() req: Request & { user: AuthUser },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const result = await this.interviewService.getExcelBuffer(id, req.user.id);
     if (!result) {
       throw new NotFoundException('Excel file not found');
     }

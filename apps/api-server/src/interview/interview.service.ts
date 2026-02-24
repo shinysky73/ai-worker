@@ -64,6 +64,9 @@ export class InterviewService implements OnModuleDestroy {
   }
 
   async submitJd(jdText: string, jobCategory: string, userId: string): Promise<SubmitResult> {
+    if (typeof jdText !== 'string') {
+      throw new BadRequestException('jdText must be a string');
+    }
     const cleanText = this.stripHtml(jdText).trim();
 
     if (!cleanText || cleanText.length < MIN_JD_LENGTH) {
