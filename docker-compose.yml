@@ -19,6 +19,8 @@ services:
       dockerfile: apps/api-server/Dockerfile
     ports:
       - "3002:3002"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     env_file:
       - apps/api-server/.env
     environment:
