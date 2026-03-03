@@ -36,8 +36,6 @@ services:
     build:
       context: .
       dockerfile: apps/user-client/Dockerfile
-    ports:
-      - "5175:80"
     depends_on:
       - api-server
 

@@ -11,9 +11,10 @@ export default defineConfig({
   },
   server: {
     port: 5175,
+    host: true, // Docker 컨테이너 외부 접근 허용 (0.0.0.0)
     proxy: {
       "/api": {
-        target: "http://localhost:3002",
+        target: process.env.API_TARGET ?? "http://localhost:3002",
         changeOrigin: true,
       },
     },

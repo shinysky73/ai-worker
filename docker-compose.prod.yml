@@ -1,0 +1,9 @@
+# 프로덕션 환경 오버라이드
+#
+# 사용법:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+services:
+  user-client:
+    ports:
+      - "5175:80"

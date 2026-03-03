@@ -1,0 +1,30 @@
+# 개발 환경 오버라이드 — 소스 변경 즉시 반영 (HMR)
+#
+# 사용법:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+
+services:
+  api-server:
+    build:
+      context: .
+      dockerfile: apps/api-server/Dockerfile.dev
+    volumes:
+      # 소스 디렉토리만 마운트 (node_modules 충돌 방지)
+      - ./apps/api-server/src:/app/apps/api-server/src
+      - ./apps/api-server/prisma:/app/apps/api-server/prisma
+      - uploads:/app/uploads
+
+  user-client:
+    build:
+      context: .
+      dockerfile: apps/user-client/Dockerfile.dev
+    ports:
+      - "5175:5175"
+    environment:
+      # 컨테이너 내부에서 api-server 서비스로 프록시
+      - API_TARGET=http://api-server:3002
+    volumes:
+      # 소스 디렉토리 + index.html 마운트
+      - ./apps/user-client/src:/app/apps/user-client/src
+      - ./apps/user-client/index.html:/app/apps/user-client/index.html

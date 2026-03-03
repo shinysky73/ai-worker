@@ -1,0 +1,18 @@
+FROM node:20-slim
+
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+# 의존성 설치 (캐시 레이어 분리)
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/user-client/package.json ./apps/user-client/
+RUN pnpm install --frozen-lockfile
+
+# 소스 복사 (볼륨 마운트로 src/index.html 은 런타임에 덮어씌워짐)
+COPY apps/user-client ./apps/user-client
+
+EXPOSE 5175
+
+# --host: 컨테이너 외부 접근 허용 (0.0.0.0 바인딩)
+CMD ["pnpm", "-F", "@ai-worker/user-client", "dev", "--host"]

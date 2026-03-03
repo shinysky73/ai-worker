@@ -1,0 +1,28 @@
+FROM node:20-slim
+
+RUN apt-get update && apt-get install -y \
+    libreoffice \
+    poppler-utils \
+    fonts-nanum \
+    fonts-nanum-coding \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+# 의존성 설치 (캐시 레이어 분리)
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/api-server/package.json ./apps/api-server/
+RUN pnpm install --frozen-lockfile
+
+# 소스 복사 (볼륨 마운트로 src/prisma 는 런타임에 덮어씌워짐)
+COPY apps/api-server ./apps/api-server
+RUN mkdir -p /app/uploads/presentations
+
+EXPOSE 3002
+
+# Prisma generate → migrate → dev watch
+CMD ["sh", "-c", \
+  "cd /app/apps/api-server && npx prisma generate && npx prisma migrate deploy && \
+   cd /app && pnpm -F @ai-worker/api-server dev"]
