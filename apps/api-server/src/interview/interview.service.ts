@@ -34,6 +34,7 @@ interface StoreEntry {
   userId: string;
   jdText: string;
   jobCategory: JobCategory;
+  resumeText?: string;
   createdAt: number;
 }
 
@@ -63,7 +64,7 @@ export class InterviewService implements OnModuleDestroy {
     }
   }
 
-  async submitJd(jdText: string, jobCategory: string, userId: string): Promise<SubmitResult> {
+  async submitJd(jdText: string, jobCategory: string, userId: string, resumeText?: string): Promise<SubmitResult> {
     if (typeof jdText !== 'string') {
       throw new BadRequestException('jdText must be a string');
     }
@@ -74,6 +75,18 @@ export class InterviewService implements OnModuleDestroy {
     }
     if (cleanText.length > MAX_JD_LENGTH) {
       throw new HttpException('최대 10,000자까지 입력 가능합니다', HttpStatus.PAYLOAD_TOO_LARGE);
+    }
+
+    // Clean resumeText if provided
+    let cleanResume: string | undefined;
+    if (resumeText && typeof resumeText === 'string') {
+      cleanResume = this.stripHtml(resumeText).trim();
+      if (cleanResume.length > MAX_JD_LENGTH) {
+        throw new HttpException('이력서는 최대 10,000자까지 입력 가능합니다', HttpStatus.PAYLOAD_TOO_LARGE);
+      }
+      if (cleanResume.length === 0) {
+        cleanResume = undefined;
+      }
     }
 
     const validCategory: JobCategory = JOB_CATEGORIES.includes(jobCategory as JobCategory)
@@ -87,6 +100,7 @@ export class InterviewService implements OnModuleDestroy {
       userId,
       jdText: cleanText,
       jobCategory: validCategory,
+      resumeText: cleanResume,
       createdAt: Date.now(),
     };
 
@@ -106,7 +120,7 @@ export class InterviewService implements OnModuleDestroy {
     entry.status.status = 'processing';
 
     try {
-      const result = await this.questionGenerator.generate(entry.jdText, entry.jobCategory);
+      const result = await this.questionGenerator.generate(entry.jdText, entry.jobCategory, entry.resumeText);
       entry.status.status = 'completed';
       entry.status.result = result;
 
@@ -119,6 +133,7 @@ export class InterviewService implements OnModuleDestroy {
             jobCategory: entry.jobCategory,
             questionsData: JSON.parse(JSON.stringify(result)),
             questionCount: result.totalQuestions,
+            hasResume: !!entry.resumeText,
           },
         });
       } catch (historyError) {

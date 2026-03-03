@@ -24,6 +24,18 @@ describe('interviewApi', () => {
       );
     });
 
+    it('shouldIncludeResumeTextWhenProvided: 이력서 포함 시 body에 resumeText 추가', async () => {
+      mockedAxios.post.mockResolvedValue({ data: { id: 'job-2' } });
+
+      await interviewApi.submitJd('프론트엔드 개발자 채용', '개발', 'React 3년 경력');
+
+      expect(mockedAxios.post).toHaveBeenCalledWith(
+        '/api/interview/generate',
+        { jdText: '프론트엔드 개발자 채용', jobCategory: '개발', resumeText: 'React 3년 경력' },
+        { timeout: 60_000 },
+      );
+    });
+
     it('shouldExtractErrorMessage: API 에러 시 에러 메시지 추출', async () => {
       const axiosError = new AxiosError('Request failed');
       axiosError.response = {

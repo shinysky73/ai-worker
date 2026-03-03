@@ -19,6 +19,7 @@ import { InterviewService, type SubmitResult, type StatusResult } from './interv
 interface GenerateDto {
   jdText: string;
   jobCategory?: string;
+  resumeText?: string;
 }
 
 @Controller('api/interview')
@@ -32,7 +33,7 @@ export class InterviewController {
     @Body() body: GenerateDto,
   ): Promise<SubmitResult> {
     const jobCategory = body.jobCategory || '일반/기타';
-    return this.interviewService.submitJd(body.jdText, jobCategory, req.user.id);
+    return this.interviewService.submitJd(body.jdText, jobCategory, req.user.id, body.resumeText);
   }
 
   @Get('history')

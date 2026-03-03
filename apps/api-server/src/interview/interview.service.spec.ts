@@ -7,64 +7,64 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { InterviewQuestionResult } from './types';
 
 const MOCK_RESULT: InterviewQuestionResult = {
-  competencies: [
+  questions: [
     {
-      name: 'React 개발',
-      questions: [
-        {
-          question: '질문1',
-          intent: '의도1',
-          goodAnswerKeywords: ['키워드1'],
-          evaluationCriteria: [
-            { level: '상', description: '우수' },
-            { level: '중', description: '보통' },
-            { level: '하', description: '미흡' },
-          ],
-        },
-        {
-          question: '질문2',
-          intent: '의도2',
-          goodAnswerKeywords: ['키워드2'],
-          evaluationCriteria: [
-            { level: '상', description: '우수' },
-            { level: '중', description: '보통' },
-            { level: '하', description: '미흡' },
-          ],
-        },
+      question: '질문1',
+      intent: '의도1',
+      goodAnswerKeywords: ['키워드1'],
+      evaluationCriteria: [
+        { level: '상', description: '우수' },
+        { level: '중', description: '보통' },
+        { level: '하', description: '미흡' },
       ],
+      targetCompetency: 'React 개발',
     },
     {
-      name: 'TypeScript',
-      questions: [
-        {
-          question: '질문3',
-          intent: '의도3',
-          goodAnswerKeywords: ['키워드3'],
-          evaluationCriteria: [
-            { level: '상', description: '우수' },
-            { level: '중', description: '보통' },
-            { level: '하', description: '미흡' },
-          ],
-        },
+      question: '질문2',
+      intent: '의도2',
+      goodAnswerKeywords: ['키워드2'],
+      evaluationCriteria: [
+        { level: '상', description: '우수' },
+        { level: '중', description: '보통' },
+        { level: '하', description: '미흡' },
       ],
+      targetCompetency: 'React 개발',
     },
     {
-      name: '협업',
-      questions: [
-        {
-          question: '질문4',
-          intent: '의도4',
-          goodAnswerKeywords: ['키워드4'],
-          evaluationCriteria: [
-            { level: '상', description: '우수' },
-            { level: '중', description: '보통' },
-            { level: '하', description: '미흡' },
-          ],
-        },
+      question: '질문3',
+      intent: '의도3',
+      goodAnswerKeywords: ['키워드3'],
+      evaluationCriteria: [
+        { level: '상', description: '우수' },
+        { level: '중', description: '보통' },
+        { level: '하', description: '미흡' },
       ],
+      targetCompetency: 'TypeScript',
+    },
+    {
+      question: '질문4',
+      intent: '의도4',
+      goodAnswerKeywords: ['키워드4'],
+      evaluationCriteria: [
+        { level: '상', description: '우수' },
+        { level: '중', description: '보통' },
+        { level: '하', description: '미흡' },
+      ],
+      targetCompetency: '협업',
+    },
+    {
+      question: '질문5',
+      intent: '의도5',
+      goodAnswerKeywords: ['키워드5'],
+      evaluationCriteria: [
+        { level: '상', description: '우수' },
+        { level: '중', description: '보통' },
+        { level: '하', description: '미흡' },
+      ],
+      targetCompetency: '문제 해결',
     },
   ],
-  totalQuestions: 4,
+  totalQuestions: 5,
   jobCategory: '개발',
   jdSummary: 'React 프론트엔드 개발자',
 };
@@ -192,6 +192,64 @@ describe('InterviewService', () => {
       const calledCategory = questionGenerator.generate.mock.calls[0]?.[1];
       expect(calledCategory).toBe('일반/기타');
     });
+
+    it('shouldPassResumeTextToGenerator: resumeText가 제공되면 generator에 전달', async () => {
+      const resumeText = 'React 3년 경력, TypeScript 프로젝트 다수 경험. 성능 최적화 전문.';
+      await service.submitJd(
+        '프론트엔드 개발자를 모집합니다. React, TypeScript 경험 3년 이상 우대합니다. 협업 능력 중시.',
+        '개발',
+        'user-1',
+        resumeText,
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const calledResume = questionGenerator.generate.mock.calls[0]?.[2];
+      expect(calledResume).toBe(resumeText);
+    });
+
+    it('shouldStripHtmlFromResume: 이력서 HTML 태그 제거', async () => {
+      const htmlResume = '<p>React <b>3년</b> 경력</p><script>alert("xss")</script> TypeScript 프로젝트 경험.';
+      await service.submitJd(
+        '프론트엔드 개발자를 모집합니다. React, TypeScript 경험 3년 이상 우대합니다. 협업 능력 중시.',
+        '개발',
+        'user-1',
+        htmlResume,
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const calledResume = questionGenerator.generate.mock.calls[0]?.[2];
+      expect(calledResume).not.toContain('<p>');
+      expect(calledResume).not.toContain('<b>');
+      expect(calledResume).not.toContain('<script>');
+    });
+
+    it('shouldRejectLongResume: 10,000자 초과 이력서 제출 시 413 에러', async () => {
+      const longResume = 'A'.repeat(10001);
+      await expect(
+        service.submitJd(
+          '프론트엔드 개발자를 모집합니다. React, TypeScript 경험 3년 이상 우대합니다. 협업 능력 중시.',
+          '개발',
+          'user-1',
+          longResume,
+        ),
+      ).rejects.toThrow('이력서는 최대 10,000자까지 입력 가능합니다');
+    });
+
+    it('shouldIgnoreEmptyResume: 빈 이력서는 undefined로 처리', async () => {
+      await service.submitJd(
+        '프론트엔드 개발자를 모집합니다. React, TypeScript 경험 3년 이상 우대합니다. 협업 능력 중시.',
+        '개발',
+        'user-1',
+        '   ',
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const calledResume = questionGenerator.generate.mock.calls[0]?.[2];
+      expect(calledResume).toBeUndefined();
+    });
   });
 
   describe('getStatus', () => {
@@ -219,7 +277,7 @@ describe('InterviewService', () => {
       const status = await service.getStatus(id, 'user-1');
       expect(status.status).toBe('completed');
       expect(status.result).toBeDefined();
-      expect(status.result!.competencies.length).toBeGreaterThanOrEqual(3);
+      expect(status.result!.questions.length).toBeGreaterThanOrEqual(3);
     });
 
     it('shouldReturnPendingForUnknownId: 알 수 없는 ID는 pending 반환', async () => {
@@ -286,7 +344,25 @@ describe('InterviewService', () => {
         data: expect.objectContaining({
           userId: 'user-1',
           jobCategory: '개발',
-          questionCount: 4,
+          questionCount: 5,
+          hasResume: false,
+        }),
+      });
+    });
+
+    it('shouldSaveHasResumeTrue: 이력서 제공 시 hasResume: true로 저장', async () => {
+      await service.submitJd(
+        '프론트엔드 개발자를 모집합니다. React, TypeScript 경험 3년 이상 우대합니다.',
+        '개발',
+        'user-1',
+        'React 3년 경력, TypeScript 프로젝트 다수 경험.',
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      expect(prismaService.interviewHistory.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          hasResume: true,
         }),
       });
     });

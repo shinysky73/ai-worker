@@ -9,6 +9,7 @@ import { InterviewResult } from '../components/InterviewResult';
 
 export function InterviewPage() {
   const [jdText, setJdText] = useState('');
+  const [resumeText, setResumeText] = useState('');
   const { options, setOptions } = useInterviewStore();
   const {
     state, result, error,
@@ -17,12 +18,13 @@ export function InterviewPage() {
 
   const handleSubmit = useCallback(async () => {
     if (!jdText.trim()) return;
-    await submit(jdText);
-  }, [jdText, submit]);
+    await submit(jdText, resumeText || undefined);
+  }, [jdText, resumeText, submit]);
 
   const handleReset = useCallback(() => {
     reset();
     setJdText('');
+    setResumeText('');
   }, [reset]);
 
   const isProcessing = state === 'submitting' || state === 'processing';
@@ -75,6 +77,30 @@ export function InterviewPage() {
                 onChange={setJdText}
                 disabled={isProcessing}
               />
+            </div>
+
+            {/* Resume Text input (optional) */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">이력서/경력서</h2>
+                <span className="text-xs text-gray-400 dark:text-gray-500">(선택)</span>
+              </div>
+              <div className="relative">
+                <textarea
+                  value={resumeText}
+                  onChange={(e) => setResumeText(e.target.value)}
+                  disabled={isProcessing}
+                  placeholder="지원자의 이력서/경력서 내용을 붙여넣으면 맞춤 면접 질문을 생성합니다."
+                  maxLength={10000}
+                  rows={5}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 resize-y focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent disabled:opacity-50 transition-all"
+                />
+                {resumeText.length > 0 && (
+                  <span className="absolute bottom-2 right-3 text-xs text-gray-400 dark:text-gray-500">
+                    {resumeText.length.toLocaleString()} / 10,000
+                  </span>
+                )}
+              </div>
             </div>
 
             {error && (

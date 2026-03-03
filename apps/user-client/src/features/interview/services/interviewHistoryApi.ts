@@ -17,6 +17,7 @@ export interface InterviewHistoryItem {
   jobCategory: string;
   questionsData: InterviewQuestionResult;
   questionCount: number;
+  hasResume: boolean;
   createdAt: string;
 }
 

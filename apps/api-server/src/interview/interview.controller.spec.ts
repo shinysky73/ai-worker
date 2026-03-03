@@ -45,6 +45,7 @@ describe('InterviewController', () => {
         '프론트엔드 개발자를 모집합니다. React, TypeScript 경험 3년 이상.',
         '개발',
         'user-1',
+        undefined,
       );
     });
 
@@ -58,6 +59,7 @@ describe('InterviewController', () => {
         expect.any(String),
         '일반/기타',
         'user-1',
+        undefined,
       );
     });
   });

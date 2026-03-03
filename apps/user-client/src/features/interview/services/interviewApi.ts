@@ -13,15 +13,11 @@ export interface InterviewQuestion {
   intent: string;
   goodAnswerKeywords: string[];
   evaluationCriteria: EvaluationCriteria[];
-}
-
-export interface Competency {
-  name: string;
-  questions: InterviewQuestion[];
+  targetCompetency: string;
 }
 
 export interface InterviewQuestionResult {
-  competencies: Competency[];
+  questions: InterviewQuestion[];
   totalQuestions: number;
   jobCategory: JobCategory;
   jdSummary: string;
@@ -51,11 +47,15 @@ function extractErrorMessage(error: unknown): string {
 }
 
 export const interviewApi = {
-  async submitJd(jdText: string, jobCategory: JobCategory): Promise<SubmitResult> {
+  async submitJd(jdText: string, jobCategory: JobCategory, resumeText?: string): Promise<SubmitResult> {
     try {
+      const body: Record<string, string> = { jdText, jobCategory };
+      if (resumeText) {
+        body.resumeText = resumeText;
+      }
       const response = await axios.post<SubmitResult>(
         '/api/interview/generate',
-        { jdText, jobCategory },
+        body,
         { timeout: REQUEST_TIMEOUT_MS },
       );
       return response.data;

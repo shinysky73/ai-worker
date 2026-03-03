@@ -14,7 +14,7 @@ export interface UseInterviewReturn {
   state: InterviewState;
   result: InterviewQuestionResult | null;
   error: string | null;
-  submit: (jdText: string) => Promise<void>;
+  submit: (jdText: string, resumeText?: string) => Promise<void>;
   downloadExcel: () => Promise<void>;
   copyToClipboard: () => Promise<void>;
   reset: () => void;
@@ -89,7 +89,7 @@ export function useInterview(): UseInterviewReturn {
     }
   }, [stopPolling]);
 
-  const submit = useCallback(async (jdText: string) => {
+  const submit = useCallback(async (jdText: string, resumeText?: string) => {
     const trimmed = jdText.trim();
     if (!trimmed || trimmed.length < 50) {
       setError('채용 공고 내용이 너무 짧습니다 (최소 50자)');
@@ -102,7 +102,8 @@ export function useInterview(): UseInterviewReturn {
     setResult(null);
 
     try {
-      const { id } = await interviewApi.submitJd(trimmed, options.jobCategory);
+      const trimmedResume = resumeText?.trim() || undefined;
+      const { id } = await interviewApi.submitJd(trimmed, options.jobCategory, trimmedResume);
       if (!isMountedRef.current) return;
 
       currentIdRef.current = id;
@@ -138,17 +139,14 @@ export function useInterview(): UseInterviewReturn {
     if (!result) return;
 
     const lines: string[] = [];
-    for (const comp of result.competencies) {
-      lines.push(`[${comp.name}]`);
-      for (const q of comp.questions) {
-        lines.push(`  Q: ${q.question}`);
-        lines.push(`  의도: ${q.intent}`);
-        lines.push(`  키워드: ${q.goodAnswerKeywords.join(', ')}`);
-        for (const ec of q.evaluationCriteria) {
-          lines.push(`  ${ec.level}: ${ec.description}`);
-        }
-        lines.push('');
+    for (const q of result.questions) {
+      lines.push(`[${q.targetCompetency}] Q: ${q.question}`);
+      lines.push(`  의도: ${q.intent}`);
+      lines.push(`  키워드: ${q.goodAnswerKeywords.join(', ')}`);
+      for (const ec of q.evaluationCriteria) {
+        lines.push(`  ${ec.level}: ${ec.description}`);
       }
+      lines.push('');
     }
 
     try {

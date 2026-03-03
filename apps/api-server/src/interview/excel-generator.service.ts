@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import type { InterviewQuestionResult } from './types';
 
-const HEADERS = ['역량', '질문', '평가 의도', '우수 답변 키워드', '평가기준(상)', '평가기준(중)', '평가기준(하)'];
+const HEADERS = ['평가 역량', '질문', '평가 의도', '우수 답변 키워드', '평가기준(상)', '평가기준(중)', '평가기준(하)'];
 
 @Injectable()
 export class InterviewExcelGeneratorService {
@@ -13,19 +13,17 @@ export class InterviewExcelGeneratorService {
     ws.addRow(HEADERS);
     ws.getRow(1).font = { bold: true };
 
-    for (const comp of result.competencies) {
-      for (const q of comp.questions) {
-        const criteria = q.evaluationCriteria || [];
-        ws.addRow([
-          comp.name,
-          q.question,
-          q.intent,
-          (q.goodAnswerKeywords || []).join(', '),
-          criteria.find((c) => c.level === '상')?.description || '',
-          criteria.find((c) => c.level === '중')?.description || '',
-          criteria.find((c) => c.level === '하')?.description || '',
-        ]);
-      }
+    for (const q of result.questions) {
+      const criteria = q.evaluationCriteria || [];
+      ws.addRow([
+        q.targetCompetency || '',
+        q.question,
+        q.intent,
+        (q.goodAnswerKeywords || []).join(', '),
+        criteria.find((c) => c.level === '상')?.description || '',
+        criteria.find((c) => c.level === '중')?.description || '',
+        criteria.find((c) => c.level === '하')?.description || '',
+      ]);
     }
 
     this.autoFitColumns(ws);

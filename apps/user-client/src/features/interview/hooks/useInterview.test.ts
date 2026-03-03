@@ -14,51 +14,39 @@ vi.mock('../services/interviewApi', () => ({
 }));
 
 const MOCK_RESULT: InterviewQuestionResult = {
-  competencies: [
+  questions: [
     {
-      name: 'React',
-      questions: [
-        {
-          question: 'React란?',
-          intent: '기본 이해도',
-          goodAnswerKeywords: ['컴포넌트', 'Virtual DOM'],
-          evaluationCriteria: [
-            { level: '상', description: '우수' },
-            { level: '중', description: '보통' },
-            { level: '하', description: '미흡' },
-          ],
-        },
+      question: 'React란?',
+      intent: '기본 이해도',
+      goodAnswerKeywords: ['컴포넌트', 'Virtual DOM'],
+      evaluationCriteria: [
+        { level: '상', description: '우수' },
+        { level: '중', description: '보통' },
+        { level: '하', description: '미흡' },
       ],
+      targetCompetency: 'React',
     },
     {
-      name: 'TypeScript',
-      questions: [
-        {
-          question: 'TS란?',
-          intent: 'TS 이해도',
-          goodAnswerKeywords: ['타입 안전성'],
-          evaluationCriteria: [
-            { level: '상', description: '우수' },
-            { level: '중', description: '보통' },
-            { level: '하', description: '미흡' },
-          ],
-        },
+      question: 'TS란?',
+      intent: 'TS 이해도',
+      goodAnswerKeywords: ['타입 안전성'],
+      evaluationCriteria: [
+        { level: '상', description: '우수' },
+        { level: '중', description: '보통' },
+        { level: '하', description: '미흡' },
       ],
+      targetCompetency: 'TypeScript',
     },
     {
-      name: '협업',
-      questions: [
-        {
-          question: '협업 경험?',
-          intent: '팀워크',
-          goodAnswerKeywords: ['소통'],
-          evaluationCriteria: [
-            { level: '상', description: '우수' },
-            { level: '중', description: '보통' },
-            { level: '하', description: '미흡' },
-          ],
-        },
+      question: '협업 경험?',
+      intent: '팀워크',
+      goodAnswerKeywords: ['소통'],
+      evaluationCriteria: [
+        { level: '상', description: '우수' },
+        { level: '중', description: '보통' },
+        { level: '하', description: '미흡' },
       ],
+      targetCompetency: '협업',
     },
   ],
   totalQuestions: 3,
@@ -111,7 +99,7 @@ describe('useInterview', () => {
     });
 
     expect(result.current.result).toBeDefined();
-    expect(result.current.result!.competencies.length).toBe(3);
+    expect(result.current.result!.questions.length).toBe(3);
   });
 
   it('shouldHandleSubmitError: 제출 실패 시 에러 상태', async () => {

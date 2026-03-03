@@ -14,15 +14,11 @@ export interface InterviewQuestion {
   intent: string;
   goodAnswerKeywords: string[];
   evaluationCriteria: EvaluationCriteria[];
-}
-
-export interface Competency {
-  name: string;
-  questions: InterviewQuestion[];
+  targetCompetency: string;
 }
 
 export interface InterviewQuestionResult {
-  competencies: Competency[];
+  questions: InterviewQuestion[];
   totalQuestions: number;
   jobCategory: JobCategory;
   jdSummary: string;

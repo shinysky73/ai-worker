@@ -43,17 +43,14 @@ export function InterviewHistoryPage() {
     if (!detailItem?.questionsData) return;
     const result = detailItem.questionsData;
     const lines: string[] = [];
-    for (const comp of result.competencies) {
-      lines.push(`[${comp.name}]`);
-      for (const q of comp.questions) {
-        lines.push(`  Q: ${q.question}`);
-        lines.push(`  의도: ${q.intent}`);
-        lines.push(`  키워드: ${q.goodAnswerKeywords.join(', ')}`);
-        for (const ec of q.evaluationCriteria) {
-          lines.push(`  ${ec.level}: ${ec.description}`);
-        }
-        lines.push('');
+    for (const q of result.questions) {
+      lines.push(`[${q.targetCompetency}] Q: ${q.question}`);
+      lines.push(`  의도: ${q.intent}`);
+      lines.push(`  키워드: ${q.goodAnswerKeywords.join(', ')}`);
+      for (const ec of q.evaluationCriteria) {
+        lines.push(`  ${ec.level}: ${ec.description}`);
       }
+      lines.push('');
     }
     try {
       await navigator.clipboard.writeText(lines.join('\n'));
@@ -75,8 +72,13 @@ export function InterviewHistoryPage() {
         </button>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="mb-4 text-xs text-gray-500 dark:text-gray-400">
-            {new Date(detailItem.createdAt).toLocaleString('ko-KR')} | {detailItem.jobCategory} | {detailItem.questionCount}개 질문
+          <div className="mb-4 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <span>{new Date(detailItem.createdAt).toLocaleString('ko-KR')} | {detailItem.jobCategory} | {detailItem.questionCount}개 질문</span>
+            {detailItem.hasResume && (
+              <span className="inline-flex items-center text-[10px] font-medium text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 px-1.5 py-0.5 rounded">
+                이력서 포함
+              </span>
+            )}
           </div>
           <InterviewResult
             result={detailItem.questionsData}
@@ -139,9 +141,16 @@ export function InterviewHistoryPage() {
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                    {item.jdSummary}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                      {item.jdSummary}
+                    </p>
+                    {item.hasResume && (
+                      <span className="inline-flex items-center text-[10px] font-medium text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 px-1.5 py-0.5 rounded shrink-0">
+                        이력서
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     {item.jobCategory} | {item.questionCount}개 질문 | {new Date(item.createdAt).toLocaleString('ko-KR')}
                   </p>

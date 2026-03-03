@@ -3,51 +3,39 @@ import { InterviewExcelGeneratorService } from './excel-generator.service';
 import type { InterviewQuestionResult } from './types';
 
 const MOCK_RESULT: InterviewQuestionResult = {
-  competencies: [
+  questions: [
     {
-      name: 'React 개발',
-      questions: [
-        {
-          question: 'React의 Virtual DOM을 설명해주세요.',
-          intent: 'React 핵심 개념 이해도',
-          goodAnswerKeywords: ['diffing', 'reconciliation', '렌더링 최적화'],
-          evaluationCriteria: [
-            { level: '상', description: '동작 원리와 최적화까지 설명' },
-            { level: '중', description: '기본 개념만 설명' },
-            { level: '하', description: '설명 불가' },
-          ],
-        },
+      question: 'React의 Virtual DOM을 설명해주세요.',
+      intent: 'React 핵심 개념 이해도',
+      goodAnswerKeywords: ['diffing', 'reconciliation', '렌더링 최적화'],
+      evaluationCriteria: [
+        { level: '상', description: '동작 원리와 최적화까지 설명' },
+        { level: '중', description: '기본 개념만 설명' },
+        { level: '하', description: '설명 불가' },
       ],
+      targetCompetency: 'React 개발',
     },
     {
-      name: 'TypeScript',
-      questions: [
-        {
-          question: '제네릭 활용 경험을 말씀해주세요.',
-          intent: 'TypeScript 고급 활용 능력',
-          goodAnswerKeywords: ['제네릭', '타입 안전성'],
-          evaluationCriteria: [
-            { level: '상', description: '실제 프로젝트 사례 설명' },
-            { level: '중', description: '개념만 이해' },
-            { level: '하', description: '모름' },
-          ],
-        },
+      question: '제네릭 활용 경험을 말씀해주세요.',
+      intent: 'TypeScript 고급 활용 능력',
+      goodAnswerKeywords: ['제네릭', '타입 안전성'],
+      evaluationCriteria: [
+        { level: '상', description: '실제 프로젝트 사례 설명' },
+        { level: '중', description: '개념만 이해' },
+        { level: '하', description: '모름' },
       ],
+      targetCompetency: 'TypeScript',
     },
     {
-      name: '협업',
-      questions: [
-        {
-          question: '코드 리뷰 갈등 해결 경험을 말씀해주세요.',
-          intent: '갈등 해결 능력',
-          goodAnswerKeywords: ['소통', '타협'],
-          evaluationCriteria: [
-            { level: '상', description: '구체적 사례 설명' },
-            { level: '중', description: '일반적 답변' },
-            { level: '하', description: '경험 없음' },
-          ],
-        },
+      question: '코드 리뷰 갈등 해결 경험을 말씀해주세요.',
+      intent: '갈등 해결 능력',
+      goodAnswerKeywords: ['소통', '타협'],
+      evaluationCriteria: [
+        { level: '상', description: '구체적 사례 설명' },
+        { level: '중', description: '일반적 답변' },
+        { level: '하', description: '경험 없음' },
       ],
+      targetCompetency: '협업',
     },
   ],
   totalQuestions: 3,
@@ -77,9 +65,25 @@ describe('InterviewExcelGeneratorService', () => {
     expect(buffer.length).toBeGreaterThan(0);
   });
 
+  it('shouldIncludeTargetCompetencyColumn: 엑셀에 평가 역량 컬럼 포함', async () => {
+    const buffer = await service.generateInterviewExcel(MOCK_RESULT);
+    const ExcelJS = await import('exceljs');
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
+    const ws = workbook.getWorksheet('면접 질문')!;
+
+    // Header row should have '평가 역량'
+    const headerValues = ws.getRow(1).values as (string | undefined)[];
+    expect(headerValues).toContain('평가 역량');
+
+    // Data rows should have targetCompetency values
+    const row2Values = ws.getRow(2).values as (string | undefined)[];
+    expect(row2Values).toContain('React 개발');
+  });
+
   it('shouldHandleEmptyResult: 질문이 없는 경우에도 엑셀 생성', async () => {
     const emptyResult: InterviewQuestionResult = {
-      competencies: [],
+      questions: [],
       totalQuestions: 0,
       jobCategory: '일반/기타',
       jdSummary: '빈 결과',
