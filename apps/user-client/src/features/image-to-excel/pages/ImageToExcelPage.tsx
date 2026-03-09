@@ -30,7 +30,7 @@ export function ImageToExcelPage() {
   const showResult = state === 'completed' && result;
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <header className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-lg font-semibold text-gray-900 dark:text-white">엑셀 변환</h1>

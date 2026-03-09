@@ -33,7 +33,7 @@ export function InterviewPage() {
   const canSubmit = jdText.trim().length >= 50 && jdText.length <= 10000 && !isProcessing;
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <header className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-lg font-semibold text-gray-900 dark:text-white">면접 질문 생성</h1>

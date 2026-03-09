@@ -70,7 +70,7 @@ export function ImageAnalysisHistoryPage() {
   if (selectedItem) {
     const typeLabel = IMAGE_TYPE_LABELS[selectedItem.imageType] || IMAGE_TYPE_LABELS.other;
     return (
-      <div className="max-w-3xl mx-auto space-y-5">
+      <div className="max-w-5xl mx-auto space-y-5">
         <button
           onClick={handleBack}
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
@@ -135,7 +135,7 @@ export function ImageAnalysisHistoryPage() {
 
   // List view
   return (
-    <div className="max-w-3xl mx-auto space-y-5">
+    <div className="max-w-5xl mx-auto space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-gray-900 dark:text-white">이미지 분석 히스토리</h1>

@@ -38,7 +38,7 @@ export function HistoryPage() {
   // Detail view
   if (selectedItem) {
     return (
-      <div className="max-w-3xl mx-auto space-y-5">
+      <div className="max-w-5xl mx-auto space-y-5">
         <button
           onClick={() => setSelectedItem(null)}
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
@@ -79,7 +79,7 @@ export function HistoryPage() {
 
   // List view
   return (
-    <div className="max-w-3xl mx-auto space-y-5">
+    <div className="max-w-5xl mx-auto space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-gray-900 dark:text-white">스크립트 히스토리</h1>

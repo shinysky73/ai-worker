@@ -46,7 +46,7 @@ const features: { title: string; description: string; link: string; icon: ReactN
 
 export function HomePage() {
   return (
-    <div className="max-w-2xl mx-auto pt-4">
+    <div className="max-w-5xl mx-auto pt-4">
       <header className="mb-10">
         <h1 className="text-lg font-semibold text-gray-900 dark:text-white">도구 모음</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">

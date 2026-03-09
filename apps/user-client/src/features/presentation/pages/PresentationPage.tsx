@@ -37,7 +37,7 @@ export function PresentationPage() {
   const showResult = state === 'completed' && result;
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <header className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-lg font-semibold text-gray-900 dark:text-white">발표 스크립트 생성</h1>
