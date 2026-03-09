@@ -6,163 +6,381 @@
   <title>AI Worker 프로젝트 가이드</title>
   <style>
     :root {
-      --bg: #ffffff;
-      --text: #1a1a2e;
-      --heading: #16213e;
-      --accent: #0f3460;
-      --link: #2563eb;
-      --code-bg: #f1f5f9;
-      --code-border: #e2e8f0;
-      --table-border: #d1d5db;
-      --table-header-bg: #f8fafc;
-      --blockquote-bg: #eff6ff;
-      --blockquote-border: #3b82f6;
-      --tip-bg: #f0fdf4;
-      --tip-border: #22c55e;
-      --warn-bg: #fffbeb;
-      --warn-border: #f59e0b;
-      --sidebar-bg: #f8fafc;
-      --sidebar-active: #2563eb;
+      --primary: #1a3a5c;
+      --primary-light: #0f6eb5;
+      --accent: #2563eb;
+      --accent-light: #3b82f6;
+      --bg: #f8f9fb;
+      --white: #ffffff;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --border: #e5e7eb;
+      --code-bg: #1e293b;
+      --code-text: #e2e8f0;
+      --green: #22c55e;
+      --green-bg: #f0fdf4;
+      --orange: #f59e0b;
+      --orange-bg: #fffbeb;
+      --purple: #a855f7;
+      --purple-bg: #faf5ff;
+      --red: #ef4444;
+      --red-bg: #fef2f2;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
       color: var(--text);
       background: var(--bg);
       line-height: 1.8;
-      display: flex;
-      min-height: 100vh;
     }
 
-    /* Sidebar */
-    nav.sidebar {
-      position: fixed;
+    /* ── Navigation ── */
+    nav {
+      position: sticky;
       top: 0;
-      left: 0;
-      width: 280px;
-      height: 100vh;
-      overflow-y: auto;
-      background: var(--sidebar-bg);
-      border-right: 1px solid var(--code-border);
-      padding: 24px 0;
-      z-index: 100;
+      z-index: 1000;
+      background: var(--primary);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
     }
 
-    nav.sidebar .logo {
-      padding: 0 20px 20px;
+    nav .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    nav .logo {
       font-size: 18px;
-      font-weight: 700;
-      color: var(--accent);
-      border-bottom: 1px solid var(--code-border);
-      margin-bottom: 16px;
+      font-weight: 800;
+      color: #fff;
+      padding: 16px 16px 16px 0;
+      white-space: nowrap;
+      border-right: 1px solid rgba(255,255,255,0.2);
+      margin-right: 8px;
     }
 
-    nav.sidebar .part-label {
-      padding: 12px 20px 4px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #94a3b8;
-    }
-
-    nav.sidebar a {
-      display: block;
-      padding: 6px 20px;
-      color: #475569;
+    nav a {
+      color: rgba(255,255,255,0.75);
       text-decoration: none;
       font-size: 14px;
-      transition: all 0.15s;
+      padding: 16px 12px;
+      white-space: nowrap;
+      transition: all 0.2s;
+      border-bottom: 3px solid transparent;
     }
 
-    nav.sidebar a:hover {
-      color: var(--sidebar-active);
-      background: #e0e7ff;
+    nav a:hover,
+    nav a.active {
+      color: #fff;
+      border-bottom-color: var(--accent-light);
     }
 
-    /* Main */
-    main {
-      margin-left: 280px;
-      max-width: 820px;
-      padding: 48px 48px 120px;
+    /* ── Landing / Hero ── */
+    #landing {
+      background: linear-gradient(135deg, var(--primary) 0%, #0d4a7a 50%, var(--primary-light) 100%);
+      color: #fff;
+      padding: 72px 24px 56px;
+      text-align: center;
     }
 
-    /* Typography */
-    h1 {
-      font-size: 32px;
-      color: var(--heading);
-      margin: 56px 0 16px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid var(--accent);
+    #landing .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 4px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 20px;
     }
 
-    h1:first-child { margin-top: 0; }
+    #landing h1 {
+      font-size: 42px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    #landing .subtitle {
+      font-size: 18px;
+      color: rgba(255,255,255,0.85);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+
+    .hero-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .hero-card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 24px 20px;
+      backdrop-filter: blur(8px);
+      text-align: left;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-2px);
+      background: rgba(255,255,255,0.15);
+    }
+
+    .hero-card .icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .hero-card strong {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .hero-card p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.75);
+      margin: 0;
+    }
+
+    /* ── Section ── */
+    section {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 56px 24px;
+    }
+
+    section + section {
+      border-top: 1px solid var(--border);
+    }
+
+    .section-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+
+    .badge-part1 { background: #dbeafe; color: #1d4ed8; }
+    .badge-part2 { background: #dcfce7; color: #16a34a; }
+    .badge-part3 { background: #fef3c7; color: #d97706; }
 
     h2 {
-      font-size: 24px;
-      color: var(--heading);
-      margin: 48px 0 16px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--code-border);
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 8px;
     }
 
     h3 {
-      font-size: 18px;
-      color: var(--heading);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
       margin: 32px 0 12px;
     }
 
-    p { margin: 12px 0; }
-
-    a { color: var(--link); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
-    strong { color: var(--heading); }
-
-    ul, ol {
-      margin: 12px 0;
-      padding-left: 28px;
+    h4 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 24px 0 8px;
     }
 
-    li { margin: 6px 0; }
-
-    hr {
-      border: none;
-      border-top: 1px solid var(--code-border);
-      margin: 40px 0;
-    }
-
-    /* Subtitle */
-    .subtitle {
-      font-size: 18px;
-      color: #64748b;
+    .section-desc {
+      font-size: 16px;
+      color: var(--text-light);
       margin-bottom: 32px;
-      padding: 12px 16px;
-      background: var(--blockquote-bg);
-      border-left: 4px solid var(--blockquote-border);
-      border-radius: 0 6px 6px 0;
     }
 
-    /* Code */
+    p { margin: 12px 0; }
+    ul, ol { margin: 12px 0; padding-left: 28px; }
+    li { margin: 6px 0; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    strong { color: var(--primary); }
+
+    /* ── Cards ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+
+    .card .card-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .card strong {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--text-light);
+    }
+
+    /* ── Diagram ── */
+    .diagram {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin: 20px 0;
+      overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre;
+      color: var(--primary);
+    }
+
+    /* ── Pipeline Steps ── */
+    .pipeline {
+      display: flex;
+      align-items: stretch;
+      gap: 12px;
+      margin: 28px 0;
+      flex-wrap: wrap;
+    }
+
+    .pipeline-step {
+      flex: 1;
+      min-width: 200px;
+      background: var(--white);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 24px 20px;
+      text-align: center;
+      transition: box-shadow 0.2s;
+    }
+
+    .pipeline-step:hover {
+      box-shadow: 0 4px 16px rgba(37,99,235,0.15);
+    }
+
+    .pipeline-step .step-num {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      border-radius: 50%;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .pipeline-step .step-title {
+      display: block;
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .pipeline-step .step-desc {
+      font-size: 13px;
+      color: var(--text-light);
+    }
+
+    .pipeline-arrow {
+      display: flex;
+      align-items: center;
+      font-size: 28px;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* ── Tables ── */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+      background: var(--white);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    /* ── Code ── */
     code {
-      background: var(--code-bg);
-      padding: 2px 6px;
+      background: #e8ecf1;
+      padding: 2px 7px;
       border-radius: 4px;
       font-size: 14px;
       font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
     }
 
     pre {
-      background: #1e293b;
-      color: #e2e8f0;
+      background: var(--code-bg);
+      color: var(--code-text);
       padding: 20px 24px;
-      border-radius: 8px;
+      border-radius: 10px;
       overflow-x: auto;
       margin: 16px 0;
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
     pre code {
@@ -177,249 +395,326 @@
       background: #334155;
       color: #94a3b8;
       font-size: 12px;
-      padding: 2px 10px;
-      border-radius: 6px 6px 0 0;
+      padding: 3px 12px;
+      border-radius: 8px 8px 0 0;
       margin-bottom: -4px;
       font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
     }
 
-    /* Diagram */
-    .diagram {
-      background: #f8fafc;
-      border: 1px solid var(--code-border);
+    /* ── Callouts ── */
+    .callout {
+      padding: 16px 20px;
+      margin: 16px 0;
       border-radius: 8px;
-      padding: 24px;
-      margin: 16px 0;
-      overflow-x: auto;
-      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-      font-size: 14px;
-      line-height: 1.5;
-      white-space: pre;
-      color: var(--heading);
-    }
-
-    /* Tables */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 16px 0;
+      border-left: 4px solid;
       font-size: 15px;
     }
 
-    th, td {
-      border: 1px solid var(--table-border);
-      padding: 10px 14px;
-      text-align: left;
+    .callout-info {
+      background: #eff6ff;
+      border-left-color: var(--accent);
+      color: #1e40af;
     }
 
-    th {
-      background: var(--table-header-bg);
-      font-weight: 600;
-      color: var(--heading);
+    .callout-tip {
+      background: var(--green-bg);
+      border-left-color: var(--green);
+      color: #166534;
     }
 
-    tr:hover { background: #f8fafc; }
-
-    /* Blockquote */
-    blockquote {
-      background: var(--blockquote-bg);
-      border-left: 4px solid var(--blockquote-border);
-      padding: 12px 16px;
-      margin: 16px 0;
-      border-radius: 0 6px 6px 0;
-      color: #475569;
+    .callout-warn {
+      background: var(--orange-bg);
+      border-left-color: var(--orange);
+      color: #92400e;
     }
 
-    blockquote.tip {
-      background: var(--tip-bg);
-      border-left-color: var(--tip-border);
-    }
-
-    blockquote.warn {
-      background: var(--warn-bg);
-      border-left-color: var(--warn-border);
-    }
-
-    blockquote p { margin: 4px 0; }
-
-    /* Feature cards */
-    .feature-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin: 16px 0;
-    }
-
-    .feature-card {
-      background: var(--sidebar-bg);
-      border: 1px solid var(--code-border);
-      border-radius: 8px;
-      padding: 16px;
-    }
-
-    .feature-card strong {
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .feature-card p {
-      margin: 0;
-      font-size: 14px;
-      color: #64748b;
-    }
-
-    /* Summary box */
-    .summary {
-      background: linear-gradient(135deg, #eff6ff, #f0fdf4);
-      border: 1px solid #bfdbfe;
-      border-radius: 8px;
-      padding: 16px 20px;
-      margin: 16px 0;
-      font-weight: 600;
-      text-align: center;
-      font-size: 16px;
-    }
-
-    /* Pipeline steps */
-    .pipeline {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 24px 0;
-      flex-wrap: wrap;
-    }
-
-    .pipeline-step {
-      flex: 1;
-      min-width: 180px;
-      background: var(--sidebar-bg);
-      border: 2px solid var(--accent);
-      border-radius: 10px;
-      padding: 16px;
-      text-align: center;
-    }
-
-    .pipeline-step .step-num {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      width: 28px;
-      height: 28px;
-      line-height: 28px;
-      border-radius: 50%;
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .pipeline-step .step-title {
-      display: block;
-      font-weight: 700;
-      color: var(--heading);
-      margin-bottom: 4px;
-    }
-
-    .pipeline-step .step-desc {
-      font-size: 13px;
-      color: #64748b;
-    }
-
-    .pipeline-arrow {
-      font-size: 24px;
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    /* Analogy */
-    .analogy {
-      background: #faf5ff;
-      border-left: 4px solid #a855f7;
-      padding: 12px 16px;
-      margin: 12px 0;
-      border-radius: 0 6px 6px 0;
-      font-size: 14px;
+    .callout-analogy {
+      background: var(--purple-bg);
+      border-left-color: var(--purple);
       color: #6b21a8;
     }
 
-    /* Troubleshoot */
+    .callout p { margin: 4px 0; }
+
+    /* ── Summary Box ── */
+    .summary {
+      background: linear-gradient(135deg, #eff6ff, #f0fdf4);
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 24px 0;
+      font-weight: 700;
+      text-align: center;
+      font-size: 17px;
+      color: var(--primary);
+    }
+
+    /* ── Troubleshoot Items ── */
     .trouble-item {
-      background: #fff;
-      border: 1px solid var(--code-border);
-      border-radius: 8px;
-      padding: 20px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
       margin: 16px 0;
+      transition: box-shadow 0.2s;
+    }
+
+    .trouble-item:hover {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     }
 
     .trouble-item .symptom {
       font-weight: 700;
-      color: #dc2626;
+      color: var(--red);
       margin-bottom: 8px;
+      font-size: 15px;
     }
 
     .trouble-item .solution {
       font-weight: 700;
-      color: #16a34a;
+      color: var(--green);
       margin-bottom: 8px;
+      font-size: 15px;
     }
 
-    /* Responsive */
-    @media (max-width: 960px) {
-      nav.sidebar { display: none; }
-      main { margin-left: 0; padding: 24px; }
-      .feature-grid { grid-template-columns: 1fr; }
-      .pipeline { flex-direction: column; }
-      .pipeline-arrow { transform: rotate(90deg); }
+    /* ── How-to Steps ── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
     }
 
-    /* Back to top */
+    .step-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .step-card .step-number {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      border-radius: 50%;
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .step-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .step-card p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-light);
+    }
+
+    /* ── Tab Group ── */
+    .tab-group {
+      margin: 20px 0;
+    }
+
+    .tab-btns {
+      display: flex;
+      gap: 4px;
+      margin-bottom: -1px;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-light);
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .tab-content {
+      display: none;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 0 8px 8px 8px;
+      padding: 24px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* ── FAQ ── */
+    .faq-item {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin: 12px 0;
+      overflow: hidden;
+    }
+
+    .faq-q {
+      padding: 16px 20px;
+      font-weight: 700;
+      color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+
+    .faq-q:hover { background: #f1f5f9; }
+
+    .faq-q::after {
+      content: '+';
+      font-size: 20px;
+      color: var(--text-light);
+      transition: transform 0.2s;
+    }
+
+    .faq-item.open .faq-q::after {
+      content: '-';
+    }
+
+    .faq-a {
+      display: none;
+      padding: 0 20px 16px;
+      color: var(--text-light);
+    }
+
+    .faq-item.open .faq-a {
+      display: block;
+    }
+
+    /* ── Back to Top ── */
     .back-top {
       display: inline-block;
-      margin-top: 16px;
+      margin-top: 20px;
       font-size: 13px;
-      color: #94a3b8;
+      color: var(--text-light);
+      text-decoration: none;
+    }
+
+    .back-top:hover { color: var(--accent); text-decoration: none; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--primary);
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 32px 24px;
+      font-size: 14px;
+      margin-top: 40px;
+    }
+
+    footer strong { color: #fff; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      nav .nav-inner { padding: 0 12px; }
+      nav .logo { font-size: 15px; padding: 12px 12px 12px 0; }
+      nav a { font-size: 13px; padding: 12px 8px; }
+      #landing { padding: 48px 16px 40px; }
+      #landing h1 { font-size: 28px; }
+      #landing .subtitle { font-size: 15px; }
+      .hero-cards { grid-template-columns: 1fr 1fr; }
+      section { padding: 40px 16px; }
+      h2 { font-size: 22px; }
+      .pipeline { flex-direction: column; }
+      .pipeline-arrow { justify-content: center; transform: rotate(90deg); }
+      .steps { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-cards { grid-template-columns: 1fr; }
+      .card-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-<nav class="sidebar">
-  <div class="logo">AI Worker Guide</div>
-
-  <div class="part-label">Part 1: 프로젝트 이해하기</div>
-  <a href="#sec1">1. AI Worker란?</a>
-  <a href="#sec2">2. 전체 동작 흐름</a>
-  <a href="#sec3">3. AI 파이프라인 상세</a>
-  <a href="#sec4">4. 시스템 구성도</a>
-  <a href="#sec5">5. 기술 스택 요약</a>
-
-  <div class="part-label">Part 2: 따라하기</div>
-  <a href="#sec6">6. 사전 준비</a>
-  <a href="#sec7">7. 프로젝트 다운로드</a>
-  <a href="#sec8">8. 환경 변수 설정</a>
-  <a href="#sec9">9. Docker로 실행하기</a>
-  <a href="#sec10">10. 로컬 개발 환경</a>
-  <a href="#sec11">11. 사용해보기</a>
-
-  <div class="part-label">Part 3: 부록</div>
-  <a href="#sec12">12. FAQ</a>
-  <a href="#sec13">13. 문제 해결</a>
-  <a href="#sec14">14. 폴더 구조</a>
+<!-- ═══════════════════ Navigation ═══════════════════ -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo">AI Worker</div>
+    <a href="#landing">홈</a>
+    <a href="#about">소개</a>
+    <a href="#flow">동작 흐름</a>
+    <a href="#pipeline">AI 파이프라인</a>
+    <a href="#architecture">시스템 구성</a>
+    <a href="#techstack">기술 스택</a>
+    <a href="#setup">설치 가이드</a>
+    <a href="#usage">사용법</a>
+    <a href="#faq">FAQ</a>
+  </div>
 </nav>
 
-<main>
+<!-- ═══════════════════ Landing ═══════════════════ -->
+<section id="landing" style="max-width:none; border:none; padding:72px 24px 56px;">
+  <div class="badge">AI-Powered Presentation Tool</div>
+  <h1>AI Worker 프로젝트 가이드</h1>
+  <p class="subtitle">PPT/PDF 파일을 업로드하면 AI가 슬라이드별 발표 스크립트를 자동으로 만들어주는 서비스</p>
 
-  <!-- Title -->
-  <h1 id="title" style="margin-top:0">AI Worker 프로젝트 가이드</h1>
-  <div class="subtitle">PPT/PDF 파일을 업로드하면 AI가 슬라이드별 발표 스크립트를 자동으로 만들어주는 서비스</div>
+  <div class="hero-cards">
+    <div class="hero-card">
+      <span class="icon">&#128196;</span>
+      <strong>PPT/PDF 업로드</strong>
+      <p>발표 파일을 올리면 자동으로 처리</p>
+    </div>
+    <div class="hero-card">
+      <span class="icon">&#129302;</span>
+      <strong>AI 스크립트 생성</strong>
+      <p>슬라이드별 발표 대본 자동 작성</p>
+    </div>
+    <div class="hero-card">
+      <span class="icon">&#127908;</span>
+      <strong>발표 톤 선택</strong>
+      <p>격식체, 캐주얼 등 원하는 말투 설정</p>
+    </div>
+    <div class="hero-card">
+      <span class="icon">&#9200;</span>
+      <strong>목표 시간 설정</strong>
+      <p>발표 총 시간에 맞춰 스크립트 길이 조절</p>
+    </div>
+    <div class="hero-card">
+      <span class="icon">&#128218;</span>
+      <strong>히스토리 관리</strong>
+      <p>이전 생성 결과를 저장하고 다시 확인</p>
+    </div>
+    <div class="hero-card">
+      <span class="icon">&#128270;</span>
+      <strong>이미지 분석</strong>
+      <p>개별 이미지를 업로드하여 AI 분석</p>
+    </div>
+  </div>
+</section>
 
-  <!-- ================================================ -->
-  <!-- Part 1 -->
-  <!-- ================================================ -->
-  <h1>Part 1: 프로젝트 이해하기</h1>
+<!-- ═══════════════════ Part 1: 프로젝트 이해하기 ═══════════════════ -->
 
-  <!-- 1 -->
-  <h2 id="sec1">1. AI Worker란?</h2>
-  <p><strong>AI Worker</strong>는 AI 기반 발표 스크립트 자동 생성기입니다.</p>
+<!-- 1. AI Worker란? -->
+<section id="about">
+  <span class="section-badge badge-part1">Part 1 &mdash; 프로젝트 이해하기</span>
+  <h2>1. AI Worker란?</h2>
+  <p class="section-desc">AI 기반 발표 스크립트 자동 생성기의 개요를 소개합니다.</p>
 
   <h3>어떤 문제를 해결하나요?</h3>
   <p>발표 준비를 할 때 슬라이드는 만들었지만, 각 슬라이드에서 <strong>무슨 말을 해야 할지</strong> 고민되는 경우가 많습니다. AI Worker는 PPT나 PDF 파일을 업로드하면, AI가 각 슬라이드의 내용을 분석하고, 슬라이드별로 자연스러운 발표 스크립트를 자동으로 생성해 줍니다.</p>
@@ -431,39 +726,72 @@
   </ul>
 
   <h3>주요 기능</h3>
-  <div class="feature-grid">
-    <div class="feature-card">
+  <div class="card-grid">
+    <div class="card">
+      <span class="card-icon">&#128196;</span>
       <strong>PPT/PDF 업로드</strong>
       <p>발표 파일을 올리면 자동 처리</p>
     </div>
-    <div class="feature-card">
+    <div class="card">
+      <span class="card-icon">&#129302;</span>
       <strong>AI 스크립트 생성</strong>
       <p>슬라이드별 발표 대본 자동 작성</p>
     </div>
-    <div class="feature-card">
+    <div class="card">
+      <span class="card-icon">&#127908;</span>
       <strong>발표 톤 선택</strong>
       <p>격식체, 캐주얼 등 원하는 말투 설정</p>
     </div>
-    <div class="feature-card">
+    <div class="card">
+      <span class="card-icon">&#9200;</span>
       <strong>목표 시간 설정</strong>
       <p>발표 총 시간에 맞춰 스크립트 길이 조절</p>
     </div>
-    <div class="feature-card">
+    <div class="card">
+      <span class="card-icon">&#128218;</span>
       <strong>히스토리 관리</strong>
       <p>이전 생성 결과를 저장하고 다시 볼 수 있음</p>
     </div>
-    <div class="feature-card">
+    <div class="card">
+      <span class="card-icon">&#128270;</span>
       <strong>이미지 분석</strong>
       <p>개별 이미지를 업로드하여 AI 분석 결과 확인</p>
     </div>
   </div>
 
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
-  <hr>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-  <!-- 2 -->
-  <h2 id="sec2">2. 전체 동작 흐름</h2>
-  <p>사용자 관점에서 파일 업로드부터 스크립트를 받기까지의 흐름입니다.</p>
+<!-- 2. 전체 동작 흐름 -->
+<section id="flow">
+  <span class="section-badge badge-part1">Part 1 &mdash; 프로젝트 이해하기</span>
+  <h2>2. 전체 동작 흐름</h2>
+  <p class="section-desc">사용자 관점에서 파일 업로드부터 스크립트를 받기까지의 흐름입니다.</p>
+
+  <div class="steps">
+    <div class="step-card">
+      <span class="step-number">1</span>
+      <strong>Google 로그인</strong>
+      <p>Google 계정으로 간편 로그인</p>
+    </div>
+    <div class="step-card">
+      <span class="step-number">2</span>
+      <strong>파일 업로드</strong>
+      <p>PPT/PDF + 톤 선택 + 목표 시간 설정</p>
+    </div>
+    <div class="step-card">
+      <span class="step-number">3</span>
+      <strong>AI 처리 대기</strong>
+      <p>AI가 분석 중... 보통 1~2분 소요</p>
+    </div>
+    <div class="step-card">
+      <span class="step-number">4</span>
+      <strong>결과 확인</strong>
+      <p>슬라이드별 스크립트 + 예상 소요 시간</p>
+    </div>
+  </div>
+
+  <div class="summary">파일 올리고 &rarr; 옵션 설정하고 &rarr; 기다리면 &rarr; 스크립트 완성!</div>
 
   <div class="diagram">&#9312; Google 로그인
      &#x2502;
@@ -485,28 +813,28 @@
      &#x25BC;
 &#9316; 히스토리에서 언제든 다시 확인 가능</div>
 
-  <div class="summary">파일 올리고 &#8594; 옵션 설정하고 &#8594; 기다리면 &#8594; 스크립트 완성!</div>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
-  <hr>
-
-  <!-- 3 -->
-  <h2 id="sec3">3. AI 파이프라인 상세</h2>
-  <p>AI Worker는 내부적으로 3단계 파이프라인을 거쳐 스크립트를 생성합니다.</p>
+<!-- 3. AI 파이프라인 상세 -->
+<section id="pipeline">
+  <span class="section-badge badge-part1">Part 1 &mdash; 프로젝트 이해하기</span>
+  <h2>3. AI 파이프라인 상세</h2>
+  <p class="section-desc">AI Worker는 내부적으로 3단계 파이프라인을 거쳐 스크립트를 생성합니다.</p>
 
   <div class="pipeline">
     <div class="pipeline-step">
       <span class="step-num">1</span>
       <span class="step-title">슬라이드 분석</span>
-      <span class="step-desc">PPT &#8594; PDF &#8594; 이미지 변환 후 AI가 내용 파악</span>
+      <span class="step-desc">PPT &rarr; PDF &rarr; 이미지 변환 후 AI가 내용 파악</span>
     </div>
-    <span class="pipeline-arrow">&#8594;</span>
+    <span class="pipeline-arrow">&rarr;</span>
     <div class="pipeline-step">
       <span class="step-num">2</span>
       <span class="step-title">맥락 기반 스크립트 생성</span>
       <span class="step-desc">이전 슬라이드 맥락 + 톤/시간 반영하여 대본 작성</span>
     </div>
-    <span class="pipeline-arrow">&#8594;</span>
+    <span class="pipeline-arrow">&rarr;</span>
     <div class="pipeline-step">
       <span class="step-num">3</span>
       <span class="step-title">후처리 리파인</span>
@@ -514,129 +842,173 @@
     </div>
   </div>
 
-  <h3>1단계: 슬라이드 분석</h3>
-  <ul>
-    <li>PPT 파일을 이미지로 변환합니다 (PPT &#8594; PDF &#8594; 이미지).</li>
-    <li>각 슬라이드 이미지를 AI(Google Gemini Vision)에게 보내서 "이 슬라이드에 무엇이 있는지" 분석합니다.</li>
-    <li>제목, 본문, 차트, 이미지 등의 내용을 추출합니다.</li>
-  </ul>
-  <div class="analogy"><strong>비유</strong>: 슬라이드를 사진 찍어서 AI한테 "여기 뭐가 적혀 있어?"라고 물어보는 것과 같습니다.</div>
+  <!-- Tab group for pipeline details -->
+  <div class="tab-group">
+    <div class="tab-btns">
+      <button class="tab-btn active" onclick="showTab('tab-step1', this)">1단계: 슬라이드 분석</button>
+      <button class="tab-btn" onclick="showTab('tab-step2', this)">2단계: 스크립트 생성</button>
+      <button class="tab-btn" onclick="showTab('tab-step3', this)">3단계: 후처리</button>
+    </div>
+    <div id="tab-step1" class="tab-content active">
+      <ul>
+        <li>PPT 파일을 이미지로 변환합니다 (PPT &rarr; PDF &rarr; 이미지).</li>
+        <li>각 슬라이드 이미지를 AI(Google Gemini Vision)에게 보내서 "이 슬라이드에 무엇이 있는지" 분석합니다.</li>
+        <li>제목, 본문, 차트, 이미지 등의 내용을 추출합니다.</li>
+      </ul>
+      <div class="callout callout-analogy">
+        <p><strong>비유</strong>: 슬라이드를 사진 찍어서 AI한테 "여기 뭐가 적혀 있어?"라고 물어보는 것과 같습니다.</p>
+      </div>
+    </div>
+    <div id="tab-step2" class="tab-content">
+      <ul>
+        <li>1단계에서 분석한 내용을 바탕으로 발표 스크립트를 작성합니다.</li>
+        <li><strong>이전 슬라이드의 맥락</strong>을 참고하여 자연스러운 연결을 만듭니다.</li>
+        <li>사용자가 선택한 톤(격식체/캐주얼 등)과 목표 시간을 반영합니다.</li>
+      </ul>
+      <div class="callout callout-analogy">
+        <p><strong>비유</strong>: 슬라이드 내용을 이해한 AI 작가가 "앞 슬라이드에서 이런 얘기를 했으니, 이번에는 이렇게 이어가겠습니다"라고 자연스럽게 대본을 쓰는 것과 같습니다.</p>
+      </div>
+    </div>
+    <div id="tab-step3" class="tab-content">
+      <ul>
+        <li>생성된 스크립트를 다듬고 개선합니다.</li>
+        <li>발표 시간에 맞게 길이를 조절합니다.</li>
+        <li>부자연스러운 표현을 수정합니다.</li>
+      </ul>
+      <div class="callout callout-analogy">
+        <p><strong>비유</strong>: 작성된 초안을 편집자가 한 번 더 검토하고 다듬는 과정입니다.</p>
+      </div>
+    </div>
+  </div>
 
-  <h3>2단계: 맥락 기반 스크립트 생성</h3>
-  <ul>
-    <li>1단계에서 분석한 내용을 바탕으로 발표 스크립트를 작성합니다.</li>
-    <li><strong>이전 슬라이드의 맥락</strong>을 참고하여 자연스러운 연결을 만듭니다.</li>
-    <li>사용자가 선택한 톤(격식체/캐주얼 등)과 목표 시간을 반영합니다.</li>
-  </ul>
-  <div class="analogy"><strong>비유</strong>: 슬라이드 내용을 이해한 AI 작가가 "앞 슬라이드에서 이런 얘기를 했으니, 이번에는 이렇게 이어가겠습니다"라고 자연스럽게 대본을 쓰는 것과 같습니다.</div>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-  <h3>3단계: 후처리 리파인</h3>
-  <ul>
-    <li>생성된 스크립트를 다듬고 개선합니다.</li>
-    <li>발표 시간에 맞게 길이를 조절합니다.</li>
-    <li>부자연스러운 표현을 수정합니다.</li>
-  </ul>
-  <div class="analogy"><strong>비유</strong>: 작성된 초안을 편집자가 한 번 더 검토하고 다듬는 과정입니다.</div>
+<!-- 4. 시스템 구성도 -->
+<section id="architecture">
+  <span class="section-badge badge-part1">Part 1 &mdash; 프로젝트 이해하기</span>
+  <h2>4. 시스템 구성도</h2>
+  <p class="section-desc">AI Worker는 크게 4가지 구성 요소로 이루어져 있습니다.</p>
 
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
-  <hr>
+  <div class="diagram">&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;         &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+&#9474;  &#49324;&#50857;&#51088;&#51032;    &#9474;  HTTPS  &#9474;  &#54532;&#47200;&#53944;&#50644;&#46300;      &#9474;
+&#9474;  &#50937; &#48652;&#46972;&#50864;&#51200; &#9474; &#9664;&#9472;&#9472;&#9472;&#9472;&#9472;&#9654; &#9474;  (React)        &#9474;
+&#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;         &#9474;  - &#54868;&#47732; &#54364;&#49884;     &#9474;
+                        &#9474;  - &#54028;&#51068; &#50629;&#47196;&#46300;   &#9474;
+                        &#9474;  - &#44208;&#44284; &#54364;&#49884;     &#9474;
+                        &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;
+                                 &#9474; API &#54840;&#52636;
+                                 &#9660;
+                        &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+                        &#9474;  &#48177;&#50644;&#46300;          &#9474;
+                        &#9474;  (NestJS)       &#9474;
+                        &#9474;  - &#54028;&#51068; &#52376;&#47532;     &#9474;
+                        &#9474;  - AI &#54840;&#52636;      &#9474;
+                        &#9474;  - &#51064;&#51613; &#44288;&#47532;     &#9474;
+                        &#9492;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9496;
+                            &#9474;         &#9474;
+                   DB &#51312;&#54924;   &#9474;         &#9474;  AI &#50836;&#52397;
+                            &#9660;         &#9660;
+                  &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;  &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+                  &#9474; &#45936;&#51060;&#53552;    &#9474;  &#9474; Google       &#9474;
+                  &#9474; &#48288;&#51060;&#49828;    &#9474;  &#9474; Gemini AI    &#9474;
+                  &#9474;(Postgre  &#9474;  &#9474; (Vision API) &#9474;
+                  &#9474;  SQL)    &#9474;  &#9474;              &#9474;
+                  &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;  &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;</div>
 
-  <!-- 4 -->
-  <h2 id="sec4">4. 시스템 구성도</h2>
-  <p>AI Worker는 크게 4가지 구성 요소로 이루어져 있습니다.</p>
+  <div class="card-grid">
+    <div class="card">
+      <span class="card-icon">&#128187;</span>
+      <strong>프론트엔드 (React)</strong>
+      <p>사용자가 보는 화면, 파일 업로드/결과 표시 &mdash; 식당의 주문 카운터</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">&#9881;&#65039;</span>
+      <strong>백엔드 (NestJS)</strong>
+      <p>파일 변환, AI 호출, 데이터 관리 &mdash; 식당의 주방</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">&#128451;&#65039;</span>
+      <strong>데이터베이스 (PostgreSQL)</strong>
+      <p>사용자 정보, 생성 히스토리 저장 &mdash; 식당의 냉장고</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">&#10024;</span>
+      <strong>Google Gemini AI</strong>
+      <p>슬라이드 분석 및 스크립트 생성 &mdash; 전문 셰프 (핵심 기술)</p>
+    </div>
+  </div>
 
-  <div class="diagram">┌─────────────┐         ┌─────────────────┐
-│  사용자의    │  HTTPS  │  프론트엔드      │
-│  웹 브라우저 │ ◀─────▶ │  (React)        │
-└─────────────┘         │  - 화면 표시     │
-                        │  - 파일 업로드   │
-                        │  - 결과 표시     │
-                        └────────┬────────┘
-                                 │ API 호출
-                                 ▼
-                        ┌─────────────────┐
-                        │  백엔드          │
-                        │  (NestJS)       │
-                        │  - 파일 처리     │
-                        │  - AI 호출      │
-                        │  - 인증 관리     │
-                        └───┬─────────┬───┘
-                            │         │
-                   DB 조회   │         │  AI 요청
-                            ▼         ▼
-                  ┌──────────┐  ┌──────────────┐
-                  │ 데이터    │  │ Google       │
-                  │ 베이스    │  │ Gemini AI    │
-                  │(Postgre  │  │ (Vision API) │
-                  │  SQL)    │  │              │
-                  └──────────┘  └──────────────┘</div>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-  <table>
-    <thead>
-      <tr><th>구성 요소</th><th>역할</th><th>비유</th></tr>
-    </thead>
-    <tbody>
-      <tr><td><strong>프론트엔드</strong></td><td>사용자가 보는 화면, 파일 업로드/결과 표시</td><td>식당의 주문 카운터</td></tr>
-      <tr><td><strong>백엔드</strong></td><td>파일 변환, AI 호출, 데이터 관리</td><td>식당의 주방</td></tr>
-      <tr><td><strong>데이터베이스</strong></td><td>사용자 정보, 생성 히스토리 저장</td><td>식당의 냉장고 (보관)</td></tr>
-      <tr><td><strong>Google Gemini AI</strong></td><td>슬라이드 분석 및 스크립트 생성</td><td>전문 셰프 (핵심 기술)</td></tr>
-    </tbody>
-  </table>
+<!-- 5. 기술 스택 -->
+<section id="techstack">
+  <span class="section-badge badge-part1">Part 1 &mdash; 프로젝트 이해하기</span>
+  <h2>5. 기술 스택 요약</h2>
+  <p class="section-desc">이 프로젝트에서 사용하는 기술들과 각각의 역할입니다.</p>
 
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
-  <hr>
+  <div class="tab-group">
+    <div class="tab-btns">
+      <button class="tab-btn active" onclick="showTab('tab-fe', this)">프론트엔드</button>
+      <button class="tab-btn" onclick="showTab('tab-be', this)">백엔드</button>
+      <button class="tab-btn" onclick="showTab('tab-infra', this)">AI &amp; 인프라</button>
+    </div>
+    <div id="tab-fe" class="tab-content active">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>기술</th><th>역할</th></tr></thead>
+          <tbody>
+            <tr><td><strong>React 19</strong></td><td>화면을 구성하는 핵심 라이브러리 (레고 블록처럼 UI를 조립)</td></tr>
+            <tr><td><strong>Vite 7</strong></td><td>개발 서버 및 빌드 도구 (코드 변경 시 즉시 반영)</td></tr>
+            <tr><td><strong>Zustand 5</strong></td><td>상태 관리 (여러 화면에서 공유하는 데이터 관리)</td></tr>
+            <tr><td><strong>Tailwind CSS 3</strong></td><td>디자인/스타일링 도구 (미리 만들어진 스타일을 클래스명으로 적용)</td></tr>
+            <tr><td><strong>React Router v7</strong></td><td>페이지 이동 관리 (로그인 페이지 &rarr; 메인 페이지 등)</td></tr>
+            <tr><td><strong>Axios</strong></td><td>백엔드와 데이터를 주고받는 통신 라이브러리</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="tab-be" class="tab-content">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>기술</th><th>역할</th></tr></thead>
+          <tbody>
+            <tr><td><strong>NestJS 11</strong></td><td>서버 애플리케이션 프레임워크 (요청 처리, 비즈니스 로직)</td></tr>
+            <tr><td><strong>Express 5</strong></td><td>HTTP 요청을 처리하는 기반 엔진</td></tr>
+            <tr><td><strong>Prisma 7</strong></td><td>데이터베이스와 대화하는 도구 (SQL 대신 코드로 DB 조작)</td></tr>
+            <tr><td><strong>PostgreSQL</strong></td><td>데이터 저장소 (사용자 정보, 히스토리 등)</td></tr>
+            <tr><td><strong>Passport + JWT</strong></td><td>로그인 인증 (Google 계정 로그인, 토큰 기반 인증)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="tab-infra" class="tab-content">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>기술</th><th>역할</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Google Gemini</strong></td><td>AI 모델 (슬라이드 이미지를 분석하고 스크립트 생성)</td></tr>
+            <tr><td><strong>LibreOffice</strong></td><td>PPT 파일을 PDF로 변환하는 오픈소스 오피스 (서버에 설치)</td></tr>
+            <tr><td><strong>Poppler</strong></td><td>PDF를 이미지로 변환하는 도구 (서버에 설치)</td></tr>
+            <tr><td><strong>Docker</strong></td><td>실행 환경을 패키징 (어떤 컴퓨터에서든 동일하게 실행)</td></tr>
+            <tr><td><strong>Nginx</strong></td><td>웹 서버 (프론트엔드 파일 제공 + 백엔드로 요청 전달)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-  <!-- 5 -->
-  <h2 id="sec5">5. 기술 스택 요약</h2>
-  <p>이 프로젝트에서 사용하는 기술들과 각각의 역할입니다.</p>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-  <h3>프론트엔드 (사용자 화면)</h3>
-  <table>
-    <thead><tr><th>기술</th><th>역할</th></tr></thead>
-    <tbody>
-      <tr><td><strong>React</strong></td><td>화면을 구성하는 핵심 라이브러리 (레고 블록처럼 UI를 조립)</td></tr>
-      <tr><td><strong>Vite</strong></td><td>개발 서버 및 빌드 도구 (코드 변경 시 즉시 반영)</td></tr>
-      <tr><td><strong>Zustand</strong></td><td>상태 관리 (여러 화면에서 공유하는 데이터 관리)</td></tr>
-      <tr><td><strong>Tailwind CSS</strong></td><td>디자인/스타일링 도구 (미리 만들어진 스타일을 클래스명으로 적용)</td></tr>
-      <tr><td><strong>React Router</strong></td><td>페이지 이동 관리 (로그인 페이지 &#8594; 메인 페이지 등)</td></tr>
-      <tr><td><strong>Axios</strong></td><td>백엔드와 데이터를 주고받는 통신 라이브러리</td></tr>
-    </tbody>
-  </table>
+<!-- ═══════════════════ Part 2: 따라하기 ═══════════════════ -->
 
-  <h3>백엔드 (서버)</h3>
-  <table>
-    <thead><tr><th>기술</th><th>역할</th></tr></thead>
-    <tbody>
-      <tr><td><strong>NestJS</strong></td><td>서버 애플리케이션 프레임워크 (요청 처리, 비즈니스 로직)</td></tr>
-      <tr><td><strong>Express</strong></td><td>HTTP 요청을 처리하는 기반 엔진</td></tr>
-      <tr><td><strong>Prisma</strong></td><td>데이터베이스와 대화하는 도구 (SQL 대신 코드로 DB 조작)</td></tr>
-      <tr><td><strong>PostgreSQL</strong></td><td>데이터 저장소 (사용자 정보, 히스토리 등)</td></tr>
-      <tr><td><strong>Passport + JWT</strong></td><td>로그인 인증 (Google 계정 로그인, 토큰 기반 인증)</td></tr>
-    </tbody>
-  </table>
-
-  <h3>AI &amp; 인프라</h3>
-  <table>
-    <thead><tr><th>기술</th><th>역할</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Google Gemini</strong></td><td>AI 모델 (슬라이드 이미지를 분석하고 스크립트 생성)</td></tr>
-      <tr><td><strong>LibreOffice</strong></td><td>PPT 파일을 PDF로 변환하는 오픈소스 오피스 (서버에 설치)</td></tr>
-      <tr><td><strong>Poppler</strong></td><td>PDF를 이미지로 변환하는 도구 (서버에 설치)</td></tr>
-      <tr><td><strong>Docker</strong></td><td>실행 환경을 패키징 (어떤 컴퓨터에서든 동일하게 실행)</td></tr>
-      <tr><td><strong>Nginx</strong></td><td>웹 서버 (프론트엔드 파일 제공 + 백엔드로 요청 전달)</td></tr>
-    </tbody>
-  </table>
-
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
-
-  <!-- ================================================ -->
-  <!-- Part 2 -->
-  <!-- ================================================ -->
-  <h1>Part 2: 따라하기 (Step-by-Step)</h1>
-
-  <!-- 6 -->
-  <h2 id="sec6">6. 사전 준비</h2>
-  <p>아래 프로그램들을 컴퓨터에 설치해야 합니다.</p>
+<!-- 6. 사전 준비 -->
+<section id="setup">
+  <span class="section-badge badge-part2">Part 2 &mdash; 따라하기</span>
+  <h2>6. 사전 준비</h2>
+  <p class="section-desc">아래 프로그램들을 컴퓨터에 설치해야 합니다.</p>
 
   <h3>6.1 Git (프로젝트 다운로드 도구)</h3>
   <p>Git은 소스 코드를 다운로드하기 위해 필요합니다.</p>
@@ -663,9 +1035,9 @@
 docker compose version
 # 예: Docker Compose version v2.20.0</code></pre>
 
-  <blockquote class="tip">
-    <p><strong>Docker만으로 실행하려면</strong>: Git + Docker만 설치하면 됩니다. <a href="#sec9">9. Docker로 실행하기</a>로 건너뛰세요.</p>
-  </blockquote>
+  <div class="callout callout-tip">
+    <p><strong>Docker만으로 실행하려면</strong>: Git + Docker만 설치하면 됩니다. <a href="#docker-run">9. Docker로 실행하기</a>로 건너뛰세요.</p>
+  </div>
 
   <h3>6.3 Node.js (로컬 개발 시 필요)</h3>
   <p>로컬에서 직접 개발하려면 Node.js가 필요합니다. 버전 20 이상이어야 합니다.</p>
@@ -685,32 +1057,37 @@ docker compose version
   <pre><code>pnpm --version
 # 예: 10.28.1 (10 이상이면 OK)</code></pre>
 
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
-  <hr>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-  <!-- 7 -->
-  <h2 id="sec7">7. 프로젝트 다운로드</h2>
-  <p>터미널(명령 프롬프트)을 열고 원하는 폴더에서 다음 명령어를 실행합니다.</p>
+<!-- 7. 프로젝트 다운로드 -->
+<section id="download">
+  <span class="section-badge badge-part2">Part 2 &mdash; 따라하기</span>
+  <h2>7. 프로젝트 다운로드</h2>
+  <p class="section-desc">터미널(명령 프롬프트)을 열고 원하는 폴더에서 다음 명령어를 실행합니다.</p>
+
   <pre><code>git clone https://github.com/shinysky73/ai-worker.git
 cd ai-worker</code></pre>
 
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
-  <hr>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-  <!-- 8 -->
-  <h2 id="sec8">8. 환경 변수 설정</h2>
-  <p>AI Worker가 정상 동작하려면 Google OAuth(로그인)와 Gemini API(AI) 키가 필요합니다.</p>
+<!-- 8. 환경 변수 설정 -->
+<section id="envvars">
+  <span class="section-badge badge-part2">Part 2 &mdash; 따라하기</span>
+  <h2>8. 환경 변수 설정</h2>
+  <p class="section-desc">AI Worker가 정상 동작하려면 Google OAuth(로그인)와 Gemini API(AI) 키가 필요합니다.</p>
 
   <h3>8.1 Google OAuth 자격 증명 발급</h3>
   <p>Google 로그인 기능을 위해 OAuth 자격 증명을 만들어야 합니다.</p>
   <ol>
     <li><a href="https://console.cloud.google.com/">Google Cloud Console</a>에 접속하여 로그인합니다.</li>
     <li>상단의 프로젝트 선택 드롭다운에서 <strong>새 프로젝트</strong>를 클릭하고, 프로젝트 이름을 입력한 뒤 <strong>만들기</strong>를 클릭합니다.</li>
-    <li>왼쪽 메뉴에서 <strong>API 및 서비스</strong> &#8594; <strong>OAuth 동의 화면</strong>으로 이동합니다.</li>
+    <li>왼쪽 메뉴에서 <strong>API 및 서비스</strong> &rarr; <strong>OAuth 동의 화면</strong>으로 이동합니다.</li>
     <li><strong>외부</strong> (External)를 선택하고 <strong>만들기</strong>를 클릭합니다.</li>
     <li>앱 이름, 사용자 지원 이메일, 개발자 연락처 이메일을 입력하고 <strong>저장 후 계속</strong>을 눌러 설정을 완료합니다.</li>
-    <li>왼쪽 메뉴에서 <strong>API 및 서비스</strong> &#8594; <strong>사용자 인증 정보</strong>로 이동합니다.</li>
-    <li>상단의 <strong>+ 사용자 인증 정보 만들기</strong> &#8594; <strong>OAuth 클라이언트 ID</strong>를 선택합니다.</li>
+    <li>왼쪽 메뉴에서 <strong>API 및 서비스</strong> &rarr; <strong>사용자 인증 정보</strong>로 이동합니다.</li>
+    <li>상단의 <strong>+ 사용자 인증 정보 만들기</strong> &rarr; <strong>OAuth 클라이언트 ID</strong>를 선택합니다.</li>
     <li>애플리케이션 유형: <strong>웹 애플리케이션</strong> 선택</li>
     <li>이름을 입력합니다 (예: AI Worker Local).</li>
     <li><strong>승인된 리디렉션 URI</strong>에 다음을 추가합니다:<br>
@@ -721,7 +1098,9 @@ cd ai-worker</code></pre>
   <h3>8.2 Google Gemini API 키</h3>
   <p>AI 기능을 위해 Gemini API 키가 필요합니다.</p>
   <p><strong>회사에서 발급한 Gemini API 키</strong>를 사용합니다. 담당자에게 키를 전달받아 아래 <code>.env</code> 파일에 입력하세요.</p>
-  <blockquote><p>키를 아직 받지 못했다면 팀 리더 또는 프로젝트 담당자에게 문의하세요.</p></blockquote>
+  <div class="callout callout-info">
+    <p>키를 아직 받지 못했다면 팀 리더 또는 프로젝트 담당자에게 문의하세요.</p>
+  </div>
 
   <h3>8.3 .env 파일 작성</h3>
   <p>프로젝트 루트에서 <code>apps/api-server/.env</code> 파일을 생성하고 아래 내용을 붙여넣습니다.</p>
@@ -736,30 +1115,34 @@ CORS_ORIGIN=http://localhost:5175
 PORT=3002</code></pre>
 
   <p>각 항목 설명:</p>
-  <table>
-    <thead><tr><th>변수명</th><th>설명</th></tr></thead>
-    <tbody>
-      <tr><td><code>DATABASE_URL</code></td><td>데이터베이스 연결 주소. Docker로 실행하면 기본값 그대로 사용</td></tr>
-      <tr><td><code>GEMINI_API_KEY</code></td><td>8.2에서 전달받은 Gemini API 키</td></tr>
-      <tr><td><code>GOOGLE_CLIENT_ID</code></td><td>8.1에서 발급한 OAuth 클라이언트 ID</td></tr>
-      <tr><td><code>GOOGLE_CLIENT_SECRET</code></td><td>8.1에서 발급한 OAuth 클라이언트 보안 비밀번호</td></tr>
-      <tr><td><code>GOOGLE_CALLBACK_URL</code></td><td>로그인 후 돌아올 주소 (기본값 그대로 사용)</td></tr>
-      <tr><td><code>JWT_SECRET</code></td><td>로그인 토큰 암호화 키 (아무 긴 문자열)</td></tr>
-      <tr><td><code>CORS_ORIGIN</code></td><td>프론트엔드 주소 (기본값 그대로 사용)</td></tr>
-      <tr><td><code>PORT</code></td><td>서버 포트 (기본값 그대로 사용)</td></tr>
-    </tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>변수명</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td><code>DATABASE_URL</code></td><td>데이터베이스 연결 주소. Docker로 실행하면 기본값 그대로 사용</td></tr>
+        <tr><td><code>GEMINI_API_KEY</code></td><td>8.2에서 전달받은 Gemini API 키</td></tr>
+        <tr><td><code>GOOGLE_CLIENT_ID</code></td><td>8.1에서 발급한 OAuth 클라이언트 ID</td></tr>
+        <tr><td><code>GOOGLE_CLIENT_SECRET</code></td><td>8.1에서 발급한 OAuth 클라이언트 보안 비밀번호</td></tr>
+        <tr><td><code>GOOGLE_CALLBACK_URL</code></td><td>로그인 후 돌아올 주소 (기본값 그대로 사용)</td></tr>
+        <tr><td><code>JWT_SECRET</code></td><td>로그인 토큰 암호화 키 (아무 긴 문자열)</td></tr>
+        <tr><td><code>CORS_ORIGIN</code></td><td>프론트엔드 주소 (기본값 그대로 사용)</td></tr>
+        <tr><td><code>PORT</code></td><td>서버 포트 (기본값 그대로 사용)</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-  <blockquote class="warn">
+  <div class="callout callout-warn">
     <p><strong>중요</strong>: <code>.env</code> 파일에는 민감한 정보가 포함되어 있으므로 절대 Git에 커밋하지 마세요. (이미 <code>.gitignore</code>에 등록되어 있습니다.)</p>
-  </blockquote>
+  </div>
 
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
-  <hr>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-  <!-- 9 -->
-  <h2 id="sec9">9. Docker로 실행하기</h2>
-  <p>Docker를 사용하면 LibreOffice, PostgreSQL 등을 별도로 설치할 필요 없이 한 번에 실행됩니다. <strong>가장 쉬운 실행 방법</strong>입니다.</p>
+<!-- 9. Docker로 실행하기 -->
+<section id="docker-run">
+  <span class="section-badge badge-part2">Part 2 &mdash; 따라하기</span>
+  <h2>9. Docker로 실행하기</h2>
+  <p class="section-desc">Docker를 사용하면 LibreOffice, PostgreSQL 등을 별도로 설치할 필요 없이 한 번에 실행됩니다. <strong>가장 쉬운 실행 방법</strong>입니다.</p>
 
   <h3>9.1 실행</h3>
   <pre><code>docker compose up --build</code></pre>
@@ -771,10 +1154,18 @@ api-server-1   | Starting API server...
 user-client-1  | ... ready ...</code></pre>
 
   <h3>9.2 접속</h3>
-  <ul>
-    <li><strong>웹 화면</strong>: <a href="http://localhost:5175">http://localhost:5175</a></li>
-    <li><strong>API 서버</strong>: <a href="http://localhost:3002">http://localhost:3002</a></li>
-  </ul>
+  <div class="card-grid">
+    <div class="card">
+      <span class="card-icon">&#127760;</span>
+      <strong>웹 화면</strong>
+      <p><a href="http://localhost:5175">http://localhost:5175</a></p>
+    </div>
+    <div class="card">
+      <span class="card-icon">&#128268;</span>
+      <strong>API 서버</strong>
+      <p><a href="http://localhost:3002">http://localhost:3002</a></p>
+    </div>
+  </div>
 
   <h3>9.3 백그라운드 실행</h3>
   <p>터미널을 닫아도 계속 실행하려면:</p>
@@ -784,18 +1175,22 @@ user-client-1  | ... ready ...</code></pre>
   <pre><code>docker compose down</code></pre>
 
   <h3>9.5 Docker 실행 시 DATABASE_URL 참고</h3>
-  <p>Docker로 실행할 때, <code>docker-compose.yml</code>에서 <code>DATABASE_URL</code>을 자동으로 <code>postgresql://postgres:post1234@db:5432/brett-ai?schema=public</code>로 덮어씁니다 (호스트명이 <code>localhost</code>가 아닌 <code>db</code>). <code>.env</code> 파일의 값과 무관하게 Docker 내부에서는 올바르게 연결됩니다.</p>
+  <div class="callout callout-info">
+    <p>Docker로 실행할 때, <code>docker-compose.yml</code>에서 <code>DATABASE_URL</code>을 자동으로 <code>postgresql://postgres:post1234@db:5432/brett-ai?schema=public</code>로 덮어씁니다 (호스트명이 <code>localhost</code>가 아닌 <code>db</code>). <code>.env</code> 파일의 값과 무관하게 Docker 내부에서는 올바르게 연결됩니다.</p>
+  </div>
 
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
-  <hr>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-  <!-- 10 -->
-  <h2 id="sec10">10. 로컬 개발 환경으로 실행하기</h2>
-  <p>코드를 수정하며 개발하려면 이 방법을 사용합니다.</p>
+<!-- 10. 로컬 개발 환경 -->
+<section id="local-dev">
+  <span class="section-badge badge-part2">Part 2 &mdash; 따라하기</span>
+  <h2>10. 로컬 개발 환경으로 실행하기</h2>
+  <p class="section-desc">코드를 수정하며 개발하려면 이 방법을 사용합니다.</p>
 
-  <blockquote class="warn">
+  <div class="callout callout-warn">
     <p><strong>Windows 사용자</strong>: 로컬 개발 환경은 macOS/Linux 기준으로 작성되어 있습니다. Windows에서 개발하려면 <a href="https://learn.microsoft.com/ko-kr/windows/wsl/install">WSL (Windows Subsystem for Linux)</a>을 설치한 뒤, WSL 터미널에서 아래 명령어들을 실행하세요. PowerShell에서 <code>wsl --install</code> 한 줄이면 설치됩니다.</p>
-  </blockquote>
+  </div>
 
   <h3>10.1 사전 요구사항</h3>
   <ul>
@@ -804,7 +1199,7 @@ user-client-1  | ... ready ...</code></pre>
     <li>LibreOffice, Poppler 설치 (PPT 파일 변환에 필요)</li>
   </ul>
 
-  <p><strong>PostgreSQL 실행 (Docker 활용)</strong>:</p>
+  <h4>PostgreSQL 실행 (Docker 활용)</h4>
   <p>데이터베이스만 Docker로 실행하는 것도 가능합니다:</p>
   <pre><code>docker run -d \
   --name ai-worker-db \
@@ -814,14 +1209,14 @@ user-client-1  | ... ready ...</code></pre>
   -p 5432:5432 \
   postgres:16-alpine</code></pre>
 
-  <p><strong>LibreOffice 설치</strong> (PPT &#8594; PDF 변환에 필요):</p>
+  <h4>LibreOffice 설치 (PPT &rarr; PDF 변환에 필요)</h4>
   <ul>
     <li>macOS: <code>brew install --cask libreoffice</code></li>
     <li>Ubuntu: <code>sudo apt-get install libreoffice</code></li>
     <li>Windows: <a href="https://www.libreoffice.org/">https://www.libreoffice.org/</a> 에서 다운로드</li>
   </ul>
 
-  <p><strong>Poppler 설치</strong> (PDF &#8594; 이미지 변환에 필요):</p>
+  <h4>Poppler 설치 (PDF &rarr; 이미지 변환에 필요)</h4>
   <ul>
     <li>macOS: <code>brew install poppler</code></li>
     <li>Ubuntu: <code>sudo apt-get install poppler-utils</code></li>
@@ -835,7 +1230,9 @@ user-client-1  | ... ready ...</code></pre>
   <h3>10.3 데이터베이스 마이그레이션</h3>
   <p>Prisma를 사용하여 데이터베이스 테이블을 생성합니다:</p>
   <pre><code>cd apps/api-server && npx prisma generate && npx prisma migrate dev</code></pre>
-  <blockquote><p>프로젝트 루트로 돌아오려면 <code>cd ../..</code>을 입력하세요.</p></blockquote>
+  <div class="callout callout-info">
+    <p>프로젝트 루트로 돌아오려면 <code>cd ../..</code>을 입력하세요.</p>
+  </div>
 
   <h3>10.4 개발 서버 실행</h3>
   <p>프로젝트 루트에서:</p>
@@ -843,16 +1240,27 @@ user-client-1  | ... ready ...</code></pre>
   <p>이 명령어는 백엔드(포트 3002)와 프론트엔드(포트 5175)를 동시에 실행합니다.</p>
 
   <h3>10.5 접속</h3>
-  <ul>
-    <li><strong>웹 화면</strong>: <a href="http://localhost:5175">http://localhost:5175</a></li>
-    <li><strong>API 서버</strong>: <a href="http://localhost:3002">http://localhost:3002</a></li>
-  </ul>
+  <div class="card-grid">
+    <div class="card">
+      <span class="card-icon">&#127760;</span>
+      <strong>웹 화면</strong>
+      <p><a href="http://localhost:5175">http://localhost:5175</a></p>
+    </div>
+    <div class="card">
+      <span class="card-icon">&#128268;</span>
+      <strong>API 서버</strong>
+      <p><a href="http://localhost:3002">http://localhost:3002</a></p>
+    </div>
+  </div>
 
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
-  <hr>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-  <!-- 11 -->
-  <h2 id="sec11">11. 사용해보기</h2>
+<!-- 11. 사용해보기 -->
+<section id="usage">
+  <span class="section-badge badge-part2">Part 2 &mdash; 따라하기</span>
+  <h2>11. 사용해보기</h2>
+  <p class="section-desc">실제로 AI Worker를 사용하는 방법입니다.</p>
 
   <h3>11.1 로그인</h3>
   <ol>
@@ -862,51 +1270,81 @@ user-client-1  | ... ready ...</code></pre>
   </ol>
 
   <h3>11.2 발표 스크립트 생성</h3>
-  <ol>
-    <li>PPT 또는 PDF 파일을 업로드합니다 (최대 50MB).</li>
-    <li>발표 톤을 선택합니다 (예: 격식체, 캐주얼).</li>
-    <li>목표 발표 시간을 설정합니다 (분 단위).</li>
-    <li><strong>생성</strong> 버튼을 클릭합니다.</li>
-    <li>처리 중 화면이 나타나며, AI가 분석을 진행합니다 (보통 1~2분).</li>
-    <li>완료되면 슬라이드별 발표 스크립트와 예상 소요 시간이 표시됩니다.</li>
-  </ol>
+  <div class="steps">
+    <div class="step-card">
+      <span class="step-number">1</span>
+      <strong>파일 업로드</strong>
+      <p>PPT 또는 PDF 파일 (최대 50MB)</p>
+    </div>
+    <div class="step-card">
+      <span class="step-number">2</span>
+      <strong>옵션 설정</strong>
+      <p>발표 톤 + 목표 시간(분 단위)</p>
+    </div>
+    <div class="step-card">
+      <span class="step-number">3</span>
+      <strong>생성 클릭</strong>
+      <p>AI 분석 진행 (보통 1~2분)</p>
+    </div>
+    <div class="step-card">
+      <span class="step-number">4</span>
+      <strong>결과 확인</strong>
+      <p>슬라이드별 스크립트 + 소요 시간</p>
+    </div>
+  </div>
 
   <h3>11.3 히스토리 확인</h3>
   <p>이전에 생성한 스크립트들은 히스토리 페이지에서 다시 확인할 수 있습니다.</p>
 
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-  <!-- ================================================ -->
-  <!-- Part 3 -->
-  <!-- ================================================ -->
-  <h1>Part 3: 부록</h1>
+<!-- ═══════════════════ Part 3: 부록 ═══════════════════ -->
 
-  <!-- 12 -->
-  <h2 id="sec12">12. 자주 묻는 질문 (FAQ)</h2>
+<!-- 12. FAQ -->
+<section id="faq">
+  <span class="section-badge badge-part3">Part 3 &mdash; 부록</span>
+  <h2>12. 자주 묻는 질문 (FAQ)</h2>
+  <p class="section-desc">자주 묻는 질문과 답변을 모았습니다.</p>
 
-  <h3>Q: 무료로 사용할 수 있나요?</h3>
-  <p>프로젝트 자체는 무료입니다. 다만 Google Gemini API 사용량에 따라 비용이 발생할 수 있습니다. 무료 티어만으로도 테스트하기에 충분합니다.</p>
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">무료로 사용할 수 있나요?</div>
+    <div class="faq-a">프로젝트 자체는 무료입니다. 다만 Google Gemini API 사용량에 따라 비용이 발생할 수 있습니다. 무료 티어만으로도 테스트하기에 충분합니다.</div>
+  </div>
 
-  <h3>Q: PPT 외에 다른 파일도 지원하나요?</h3>
-  <p>PPT(.pptx)와 PDF 파일을 지원합니다. PPT 파일은 서버에서 자동으로 PDF &#8594; 이미지로 변환됩니다.</p>
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">PPT 외에 다른 파일도 지원하나요?</div>
+    <div class="faq-a">PPT(.pptx)와 PDF 파일을 지원합니다. PPT 파일은 서버에서 자동으로 PDF &rarr; 이미지로 변환됩니다.</div>
+  </div>
 
-  <h3>Q: 발표 스크립트 생성에 얼마나 걸리나요?</h3>
-  <p>슬라이드 수에 따라 다르지만, 보통 10~20장 기준 1~2분 정도 소요됩니다.</p>
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">발표 스크립트 생성에 얼마나 걸리나요?</div>
+    <div class="faq-a">슬라이드 수에 따라 다르지만, 보통 10~20장 기준 1~2분 정도 소요됩니다.</div>
+  </div>
 
-  <h3>Q: 생성된 스크립트를 수정할 수 있나요?</h3>
-  <p>현재는 웹 화면에서 직접 수정하는 기능은 없습니다. 결과를 복사하여 별도로 편집하세요.</p>
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">생성된 스크립트를 수정할 수 있나요?</div>
+    <div class="faq-a">현재는 웹 화면에서 직접 수정하는 기능은 없습니다. 결과를 복사하여 별도로 편집하세요.</div>
+  </div>
 
-  <h3>Q: Docker 없이도 실행할 수 있나요?</h3>
-  <p>네, 가능합니다. 다만 PostgreSQL, LibreOffice, Poppler를 직접 설치해야 합니다. <a href="#sec10">10. 로컬 개발 환경으로 실행하기</a>를 참고하세요.</p>
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Docker 없이도 실행할 수 있나요?</div>
+    <div class="faq-a">네, 가능합니다. 다만 PostgreSQL, LibreOffice, Poppler를 직접 설치해야 합니다. <a href="#local-dev">10. 로컬 개발 환경으로 실행하기</a>를 참고하세요.</div>
+  </div>
 
-  <h3>Q: Google 이외의 계정으로 로그인할 수 있나요?</h3>
-  <p>현재는 Google OAuth만 지원합니다.</p>
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Google 이외의 계정으로 로그인할 수 있나요?</div>
+    <div class="faq-a">현재는 Google OAuth만 지원합니다.</div>
+  </div>
 
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
-  <hr>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-  <!-- 13 -->
-  <h2 id="sec13">13. 문제 해결 (Troubleshooting)</h2>
+<!-- 13. 문제 해결 -->
+<section id="troubleshoot">
+  <span class="section-badge badge-part3">Part 3 &mdash; 부록</span>
+  <h2>13. 문제 해결 (Troubleshooting)</h2>
+  <p class="section-desc">자주 발생하는 문제와 해결 방법입니다.</p>
 
   <h3>Docker 관련</h3>
 
@@ -949,7 +1387,7 @@ sudo apt-get install libreoffice</code></pre>
   </div>
 
   <div class="trouble-item">
-    <p class="symptom">증상: PDF &#8594; 이미지 변환 실패 (<code>pdftoppm: command not found</code>)</p>
+    <p class="symptom">증상: PDF &rarr; 이미지 변환 실패 (<code>pdftoppm: command not found</code>)</p>
     <p class="solution">해결: Poppler가 설치되어 있지 않습니다.</p>
     <pre><code># macOS
 brew install poppler
@@ -973,78 +1411,121 @@ sudo apt-get install poppler-utils</code></pre>
     </ol>
   </div>
 
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
-  <hr>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-  <!-- 14 -->
-  <h2 id="sec14">14. 프로젝트 폴더 구조 설명</h2>
+<!-- 14. 폴더 구조 -->
+<section id="structure">
+  <span class="section-badge badge-part3">Part 3 &mdash; 부록</span>
+  <h2>14. 프로젝트 폴더 구조 설명</h2>
+  <p class="section-desc">프로젝트의 전체 폴더 구조와 핵심 파일을 설명합니다.</p>
 
   <pre><code>ai-worker/
-│
-├── apps/                          # 애플리케이션 모음
-│   │
-│   ├── api-server/                # 백엔드 서버 (NestJS)
-│   │   ├── src/
-│   │   │   ├── auth/              # 로그인/인증 관련
-│   │   │   ├── image-analysis/    # 이미지 분석 기능
-│   │   │   ├── presentation/      # 핵심! 발표 스크립트 생성
-│   │   │   │   ├── converter.service.ts        # PPT→PDF→이미지 변환
-│   │   │   │   ├── script-generator.service.ts # AI 스크립트 생성
-│   │   │   │   ├── presentation.service.ts     # 전체 흐름 관리
-│   │   │   │   └── presentation.controller.ts  # API 엔드포인트
-│   │   │   ├── prisma/            # 데이터베이스 연결
-│   │   │   ├── app.module.ts      # 앱 설정 (모든 모듈 연결)
-│   │   │   └── main.ts            # 서버 시작점
-│   │   ├── prisma/
-│   │   │   └── schema.prisma      # 데이터베이스 테이블 정의
-│   │   ├── Dockerfile             # Docker 빌드 설정
-│   │   └── package.json
-│   │
-│   └── user-client/               # 프론트엔드 (React)
-│       ├── src/
-│       │   ├── features/
-│       │   │   ├── auth/          # 로그인 화면/로직
-│       │   │   ├── presentation/  # 발표 스크립트 관련 화면
-│       │   │   ├── history/       # 히스토리 관련 화면
-│       │   │   └── image-analysis/# 이미지 분석 화면
-│       │   ├── components/
-│       │   │   ├── Layout.tsx     # 전체 레이아웃 (인증 가드)
-│       │   │   └── Navbar.tsx     # 상단 네비게이션 바
-│       │   ├── App.tsx            # 라우팅 설정
-│       │   └── main.tsx           # 앱 시작점
-│       ├── nginx.conf             # Nginx 설정 (Docker용)
-│       ├── Dockerfile             # Docker 빌드 설정
-│       └── package.json
-│
-├── docs/                          # 문서 모음
-│   ├── 01-idea/                   # 초기 아이디어
-│   ├── 02-presentation-script-generator/  # v1 기획
-│   ├── 03-presentation-script-generator-v2/ # v2 기획
-│   ├── 04-auth-history-navigation/  # 인증/히스토리 기획
-│   └── 05-image-analysis/         # 이미지 분석 기획
-│
-├── docker-compose.yml             # Docker 전체 실행 설정
-├── pnpm-workspace.yaml            # 모노레포 워크스페이스 설정
-├── package.json                   # 루트 패키지 설정
-├── CLAUDE.md                      # Claude Code 가이드
-├── HANDOFF.md                     # 인수인계 문서
-└── README.md                      # 프로젝트 소개</code></pre>
+&#9474;
+&#9500;&#9472;&#9472; apps/                          # 애플리케이션 모음
+&#9474;   &#9474;
+&#9474;   &#9500;&#9472;&#9472; api-server/                # 백엔드 서버 (NestJS)
+&#9474;   &#9474;   &#9500;&#9472;&#9472; src/
+&#9474;   &#9474;   &#9474;   &#9500;&#9472;&#9472; auth/              # 로그인/인증 관련
+&#9474;   &#9474;   &#9474;   &#9500;&#9472;&#9472; image-analysis/    # 이미지 분석 기능
+&#9474;   &#9474;   &#9474;   &#9500;&#9472;&#9472; presentation/      # 핵심! 발표 스크립트 생성
+&#9474;   &#9474;   &#9474;   &#9474;   &#9500;&#9472;&#9472; converter.service.ts        # PPT&#8594;PDF&#8594;이미지 변환
+&#9474;   &#9474;   &#9474;   &#9474;   &#9500;&#9472;&#9472; script-generator.service.ts # AI 스크립트 생성
+&#9474;   &#9474;   &#9474;   &#9474;   &#9500;&#9472;&#9472; presentation.service.ts     # 전체 흐름 관리
+&#9474;   &#9474;   &#9474;   &#9474;   &#9492;&#9472;&#9472; presentation.controller.ts  # API 엔드포인트
+&#9474;   &#9474;   &#9474;   &#9500;&#9472;&#9472; prisma/            # 데이터베이스 연결
+&#9474;   &#9474;   &#9474;   &#9500;&#9472;&#9472; app.module.ts      # 앱 설정 (모든 모듈 연결)
+&#9474;   &#9474;   &#9474;   &#9492;&#9472;&#9472; main.ts            # 서버 시작점
+&#9474;   &#9474;   &#9500;&#9472;&#9472; prisma/
+&#9474;   &#9474;   &#9474;   &#9492;&#9472;&#9472; schema.prisma      # 데이터베이스 테이블 정의
+&#9474;   &#9474;   &#9500;&#9472;&#9472; Dockerfile             # Docker 빌드 설정
+&#9474;   &#9474;   &#9492;&#9472;&#9472; package.json
+&#9474;   &#9474;
+&#9474;   &#9492;&#9472;&#9472; user-client/               # 프론트엔드 (React)
+&#9474;       &#9500;&#9472;&#9472; src/
+&#9474;       &#9474;   &#9500;&#9472;&#9472; features/
+&#9474;       &#9474;   &#9474;   &#9500;&#9472;&#9472; auth/          # 로그인 화면/로직
+&#9474;       &#9474;   &#9474;   &#9500;&#9472;&#9472; presentation/  # 발표 스크립트 관련 화면
+&#9474;       &#9474;   &#9474;   &#9500;&#9472;&#9472; history/       # 히스토리 관련 화면
+&#9474;       &#9474;   &#9474;   &#9492;&#9472;&#9472; image-analysis/# 이미지 분석 화면
+&#9474;       &#9474;   &#9500;&#9472;&#9472; components/
+&#9474;       &#9474;   &#9474;   &#9500;&#9472;&#9472; Layout.tsx     # 전체 레이아웃 (인증 가드)
+&#9474;       &#9474;   &#9474;   &#9492;&#9472;&#9472; Navbar.tsx     # 상단 네비게이션 바
+&#9474;       &#9474;   &#9500;&#9472;&#9472; App.tsx            # 라우팅 설정
+&#9474;       &#9474;   &#9492;&#9472;&#9472; main.tsx           # 앱 시작점
+&#9474;       &#9500;&#9472;&#9472; nginx.conf             # Nginx 설정 (Docker용)
+&#9474;       &#9500;&#9472;&#9472; Dockerfile             # Docker 빌드 설정
+&#9474;       &#9492;&#9472;&#9472; package.json
+&#9474;
+&#9500;&#9472;&#9472; docs/                          # 문서 모음
+&#9474;   &#9500;&#9472;&#9472; 01-idea/                   # 초기 아이디어
+&#9474;   &#9500;&#9472;&#9472; 02-presentation-script-generator/  # v1 기획
+&#9474;   &#9500;&#9472;&#9472; 03-presentation-script-generator-v2/ # v2 기획
+&#9474;   &#9500;&#9472;&#9472; 04-auth-history-navigation/  # 인증/히스토리 기획
+&#9474;   &#9492;&#9472;&#9472; 05-image-analysis/         # 이미지 분석 기획
+&#9474;
+&#9500;&#9472;&#9472; docker-compose.yml             # Docker 전체 실행 설정
+&#9500;&#9472;&#9472; pnpm-workspace.yaml            # 모노레포 워크스페이스 설정
+&#9500;&#9472;&#9472; package.json                   # 루트 패키지 설정
+&#9500;&#9472;&#9472; CLAUDE.md                      # Claude Code 가이드
+&#9500;&#9472;&#9472; HANDOFF.md                     # 인수인계 문서
+&#9492;&#9472;&#9472; README.md                      # 프로젝트 소개</code></pre>
 
   <h3>핵심 파일 한눈에 보기</h3>
-  <table>
-    <thead><tr><th>파일</th><th>한 줄 설명</th></tr></thead>
-    <tbody>
-      <tr><td><code>docker-compose.yml</code></td><td><code>docker compose up</code>으로 전체 서비스를 한번에 실행하는 설정</td></tr>
-      <tr><td><code>apps/api-server/.env</code></td><td>API 키, DB 연결 정보 등 비밀 설정값 (직접 생성 필요)</td></tr>
-      <tr><td><code>apps/api-server/prisma/schema.prisma</code></td><td>데이터베이스 테이블 구조 정의 (User, PresentationHistory 등)</td></tr>
-      <tr><td><code>apps/api-server/src/presentation/</code></td><td>발표 스크립트 생성의 핵심 로직이 있는 폴더</td></tr>
-      <tr><td><code>apps/user-client/src/App.tsx</code></td><td>프론트엔드 페이지 라우팅(경로) 설정</td></tr>
-    </tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>파일</th><th>한 줄 설명</th></tr></thead>
+      <tbody>
+        <tr><td><code>docker-compose.yml</code></td><td><code>docker compose up</code>으로 전체 서비스를 한번에 실행하는 설정</td></tr>
+        <tr><td><code>apps/api-server/.env</code></td><td>API 키, DB 연결 정보 등 비밀 설정값 (직접 생성 필요)</td></tr>
+        <tr><td><code>apps/api-server/prisma/schema.prisma</code></td><td>데이터베이스 테이블 구조 정의 (User, PresentationHistory 등)</td></tr>
+        <tr><td><code>apps/api-server/src/presentation/</code></td><td>발표 스크립트 생성의 핵심 로직이 있는 폴더</td></tr>
+        <tr><td><code>apps/user-client/src/App.tsx</code></td><td>프론트엔드 페이지 라우팅(경로) 설정</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-  <a class="back-top" href="#title">&#8593; 맨 위로</a>
+  <a class="back-top" href="#landing">&#8593; 맨 위로</a>
+</section>
 
-</main>
+<!-- ═══════════════════ Footer ═══════════════════ -->
+<footer>
+  <p><strong>AI Worker</strong> &mdash; AI 기반 발표 스크립트 자동 생성기</p>
+  <p>pnpm Monorepo &middot; NestJS &middot; React &middot; Google Gemini AI</p>
+</footer>
+
+<!-- ═══════════════════ JavaScript ═══════════════════ -->
+<script>
+  // Tab switching
+  function showTab(id, btn) {
+    const group = btn.closest('.tab-group');
+    group.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    group.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // Scroll-based navigation highlighting
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const top = section.offsetTop - 80;
+      if (window.scrollY >= top) {
+        current = section.id;
+      }
+    });
+
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) {
+        link.classList.add('active');
+      }
+    });
+  });
+</script>
 
 </body>
 </html>

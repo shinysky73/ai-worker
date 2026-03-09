@@ -9,7 +9,7 @@ interface MultiImageUploaderProps {
 }
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_SIZE = 10 * 1024 * 1024;
 
 export function MultiImageUploader({
   files,
@@ -63,52 +63,46 @@ export function MultiImageUploader({
     [files, onFilesChange],
   );
 
-  const handleDragOver = useCallback(
-    (e: DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      if (!disabled) setIsDragOver(true);
-    },
-    [disabled],
-  );
+  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!disabled) setIsDragOver(true);
+  }, [disabled]);
 
   const handleDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragOver(false);
   }, []);
 
-  const handleDrop = useCallback(
-    (e: DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      setIsDragOver(false);
-      if (disabled) return;
-      if (e.dataTransfer.files.length > 0) {
-        addFiles(e.dataTransfer.files);
-      }
-    },
-    [disabled, addFiles],
-  );
+  const handleDrop = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (disabled) return;
+    if (e.dataTransfer.files.length > 0) {
+      addFiles(e.dataTransfer.files);
+    }
+  }, [disabled, addFiles]);
 
-  const handleInputChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files.length > 0) {
-        addFiles(e.target.files);
-      }
-      e.target.value = '';
-    },
-    [addFiles],
-  );
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      addFiles(e.target.files);
+    }
+    e.target.value = '';
+  }, [addFiles]);
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-3">
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={`
-          relative border-2 border-dashed rounded-xl p-8 text-center
-          transition-colors duration-200 cursor-pointer
-          ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800' : ''}
-          ${isDragOver ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'}
+          relative rounded-lg border border-dashed p-8 text-center cursor-pointer transition-colors
+          ${disabled ? 'opacity-50 cursor-not-allowed border-gray-200 dark:border-gray-800' : ''}
+          ${isDragOver
+            ? 'border-gray-400 bg-gray-50 dark:border-gray-600 dark:bg-gray-900'
+            : !disabled
+            ? 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
+            : ''}
         `}
       >
         <input
@@ -119,18 +113,12 @@ export function MultiImageUploader({
           disabled={disabled}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
         />
-        <div className="space-y-2">
-          <svg className="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
-          </svg>
-          <p className="text-gray-600 dark:text-gray-300">
-            <span className="font-medium text-emerald-600 dark:text-emerald-400">이미지를 선택</span>
-            하거나 드래그하여 업로드
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            JPEG, PNG, WebP (최대 {maxFiles}장, 개별 10MB)
-          </p>
-        </div>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          <span className="font-medium text-gray-700 dark:text-gray-300">이미지를 선택</span>하거나 드래그하여 업로드
+        </p>
+        <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+          JPEG, PNG, WebP · 최대 {maxFiles}장, 개별 10MB
+        </p>
       </div>
 
       {error && (
@@ -139,24 +127,23 @@ export function MultiImageUploader({
 
       {files.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            선택된 파일 ({files.length}/{maxFiles})
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {files.length}/{maxFiles}장 선택됨
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
             {files.map((file, i) => (
               <div
                 key={`${file.name}-${i}`}
-                className="relative group bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
+                className="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800"
               >
                 <img
                   src={URL.createObjectURL(file)}
                   alt={file.name}
-                  className="w-full h-24 object-cover"
+                  className="w-full h-20 object-cover"
                   onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)}
                 />
                 <div className="px-2 py-1.5">
                   <p className="text-xs text-gray-600 dark:text-gray-400 truncate">{file.name}</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">{(file.size / 1024).toFixed(0)} KB</p>
                 </div>
                 {!disabled && (
                   <button
@@ -164,7 +151,7 @@ export function MultiImageUploader({
                     className="absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                     aria-label={`${file.name} 제거`}
                   >
-                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
