@@ -53,7 +53,7 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
       <div className="w-full max-w-sm px-6">
-        <div className="mb-8">
+        <div className="mb-8 text-center">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">AI Worker</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             AI 기반 업무 자동화 도구 모음
