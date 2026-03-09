@@ -195,10 +195,6 @@ export function LoginPage() {
           </p>
         </div>
 
-        {/* Footer */}
-        <p className="mt-8 text-center text-[11px] text-gray-400 tracking-wide">
-          Powered by Gemini 2.5 Flash
-        </p>
       </div>
     </div>
   );

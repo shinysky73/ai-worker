@@ -64,26 +64,27 @@ ${resumeSection}
 ## 요구사항:
 1. JD에서 핵심 역량을 파악하세요.
 2. 가장 중요한 핵심 면접 질문을 정확히 5개 생성하세요.
-3. 각 질문에는 반드시 다음을 포함하세요:
-   - question: 면접 질문 텍스트
-   - intent: 이 질문으로 무엇을 평가하는가
-   - goodAnswerKeywords: 우수 답변에 포함될 키워드 배열 (3~5개)
-   - evaluationCriteria: 평가 기준 배열 (상/중/하 3단계, 각 level과 description 포함)
-   - targetCompetency: 이 질문이 평가하는 역량명 (문자열)
+3. **간결하게 작성하세요**: 모든 텍스트는 핵심만 담아 짧고 명료하게 작성합니다.
+4. 각 질문에는 반드시 다음을 포함하세요:
+   - question: 면접 질문 (1~2문장, 핵심만)
+   - intent: 평가 의도 (1문장 이내)
+   - goodAnswerKeywords: 우수 답변 키워드 (3~5개, 각 키워드는 단어 또는 짧은 구)
+   - evaluationCriteria: 평가 기준 (상/중/하 3단계, 각 description은 1문장 이내로 간결하게)
+   - targetCompetency: 평가 역량명 (짧은 명사구)
 
 ## 응답 형식 (JSON만 반환):
 {
   "questions": [
     {
-      "question": "질문 텍스트",
-      "intent": "평가 의도",
+      "question": "간결한 질문 (1~2문장)",
+      "intent": "한 문장 평가 의도",
       "goodAnswerKeywords": ["키워드1", "키워드2", "키워드3"],
       "evaluationCriteria": [
-        { "level": "상", "description": "우수 답변 기준" },
-        { "level": "중", "description": "보통 답변 기준" },
-        { "level": "하", "description": "미흡 답변 기준" }
+        { "level": "상", "description": "한 문장 우수 기준" },
+        { "level": "중", "description": "한 문장 보통 기준" },
+        { "level": "하", "description": "한 문장 미흡 기준" }
       ],
-      "targetCompetency": "평가 역량명"
+      "targetCompetency": "역량명"
     }
   ],
   "totalQuestions": 5,
