@@ -50,63 +50,33 @@ export function ResultSummary({ result, onReset }: ResultSummaryProps) {
   }, [result]);
 
   return (
-    <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-6 text-white">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <svg className="h-5 w-5 text-indigo-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h3 className="text-base font-semibold">스크립트 생성 완료</h3>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-indigo-200">
-            <span className="flex items-center gap-1">
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              총 {formatTime(result.totalEstimatedSeconds)}
-            </span>
-            <span className="flex items-center gap-1">
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              {result.slides.length}장 슬라이드
-            </span>
-          </div>
-        </div>
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4 border-b border-gray-200 dark:border-gray-800 mb-1">
+      <div>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">스크립트 생성 완료</h3>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          {result.slides.length}장 · 총 {formatTime(result.totalEstimatedSeconds)}
+        </p>
+      </div>
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={handleCopyAll}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium bg-white/15 hover:bg-white/25 rounded-xl transition-colors"
-          >
-            {copyState === 'copied' ? (
-              <><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>복사됨</>
-            ) : (
-              <><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>전체 복사</>
-            )}
-          </button>
-
-          <button
-            onClick={handleDownload}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium bg-white text-indigo-700 hover:bg-indigo-50 rounded-xl transition-colors"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            다운로드
-          </button>
-
-          <button
-            onClick={onReset}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-indigo-200 hover:text-white transition-colors"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            새로 시작
-          </button>
-        </div>
+      <div className="flex gap-2">
+        <button
+          onClick={handleCopyAll}
+          className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
+        >
+          {copyState === 'copied' ? '복사됨' : '전체 복사'}
+        </button>
+        <button
+          onClick={handleDownload}
+          className="px-3 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+        >
+          다운로드
+        </button>
+        <button
+          onClick={onReset}
+          className="px-3 py-1.5 text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+        >
+          새로 시작
+        </button>
       </div>
     </div>
   );
